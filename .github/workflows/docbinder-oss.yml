@@ -10,6 +10,7 @@ on:
   pull_request:
     paths:
       - "docbinder-oss/**"
+  workflow_dispatch:
 
 jobs:
   test:
