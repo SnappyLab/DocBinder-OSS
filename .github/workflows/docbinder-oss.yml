@@ -30,7 +30,7 @@ jobs:
 
       - name: Run tests
         run: |
-          cd src/docbinder-oss
+          cd src/docbinder_oss
           tox
 
   pypi-publish:
