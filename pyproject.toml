@@ -1,6 +1,6 @@
 [project]
 name = "docbinder_oss"
-version = "0.1.0"
+version = "0.1.1"
 description = "DocBinder Open Source Shared Library"
 readme = "README.md"
 authors = [
