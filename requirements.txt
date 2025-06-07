@@ -1,1 +1,4 @@
 hatchling
+setuptools
+wheel
+tox
