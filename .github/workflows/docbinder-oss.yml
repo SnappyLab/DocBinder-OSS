@@ -43,6 +43,7 @@ jobs:
     environment: pypi
 
     steps:
+      - uses: actions/checkout@v4
       - name: build release distributions
         run: |
           pip install hatchling
