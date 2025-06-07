@@ -47,6 +47,7 @@ jobs:
     steps:
       - name: build release distributions
         run: |
+          pip install hatchling
           python -m hatchling build
 
       - name: Publish release distributions to PyPI
