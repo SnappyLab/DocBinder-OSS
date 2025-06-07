@@ -34,12 +34,6 @@ jobs:
           cd docbinder-oss
           tox
 
-      - name: upload windows dists
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-dists
-          path: dist/
-
   pypi-publish:
     runs-on: ubuntu-latest
     needs:
@@ -54,9 +48,7 @@ jobs:
     steps:
       - name: build release distributions
         run: |
-          # NOTE: put your own distribution build steps here.
-          python -m pip install build
-          python -m build
+          python -m hatchling build
 
       - name: Publish release distributions to PyPI
         uses: pypa/gh-action-pypi-publish@v1.12.4
