@@ -1,5 +1,5 @@
 [project]
-name = "docbinder-oss"
+name = "docbinder_oss"
 version = "0.1.0"
 description = "DocBinder Open Source Shared Library"
 readme = "README.md"
