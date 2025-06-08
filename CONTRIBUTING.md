@@ -42,11 +42,7 @@ deactivate
 1. Clone the repository and navigate to the docbinder-oss folder.
 2. Create and activate the virtual environment as shown above.
 3. Install dependencies with `pip install -r requirements.txt`.
-4. Start developing! You can run the FastAPI app with:
-
-```zsh
-uvicorn src.docbinder_oss.main:app --host 0.0.0.0 --port 8000
-```
+4. Start developing!
 
 - Make sure you are in the docbinder-oss folder and your virtual environment is activated before running any scripts or development commands.
 
