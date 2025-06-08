@@ -3,9 +3,7 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
-from accessapi.schemas import AccessPermission, MetadataResponse, User
-from accessapi.services.base_client import BaseStorageClient
-from accessapi.core.config import settings
+from ..base_client import BaseStorageClient
 from .google_drive_buckets import GoogleDriveBuckets
 from .google_drive_objects import GoogleDriveObjects
 from .google_drive_permissions import GoogleDrivePermissions

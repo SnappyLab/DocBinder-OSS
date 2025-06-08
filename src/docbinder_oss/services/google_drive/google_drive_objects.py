@@ -1,12 +1,11 @@
 import logging
 from googleapiclient.discovery import Resource
-from typing import List, Dict
-from accessapi.schemas import AccessPermission, MetadataResponse, User
+from typing import List, Dict, Any
 
 logger = logging.getLogger(__name__)
 
 class GoogleDriveObjects:
-    def __init__(self, service: Resource):
+    def __init__(self, service: Any):
         self.service = service
 
     def list_objects(self, bucket_name: str) -> List[str]:

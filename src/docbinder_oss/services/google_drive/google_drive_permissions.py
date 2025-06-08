@@ -1,13 +1,11 @@
 import logging
-from googleapiclient.discovery import Resource
-from typing import Dict
+from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
 
 class GoogleDrivePermissions:
-    def __init__(self, service: Resource):
+    def __init__(self, service: Any):
         self.service = service
-
     def list_access(self, bucket_name: str) -> Dict:
         _, bucket_id = bucket_name.split('|', 1)
         try:
