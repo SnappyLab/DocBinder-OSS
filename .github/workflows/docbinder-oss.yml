@@ -5,13 +5,10 @@ on:
     branches:
       - main
       - dev
-    paths:
-      - "docbinder-oss/**"
   pull_request:
-    paths:
-      - "docbinder-oss/**"
-  workflow_dispatch:
-
+    branches:
+      - main
+      - dev
 jobs:
   test:
     runs-on: ubuntu-latest

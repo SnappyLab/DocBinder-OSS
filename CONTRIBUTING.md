@@ -42,6 +42,8 @@ deactivate
 1. Clone the repository and navigate to the docbinder-oss folder.
 2. Create and activate the virtual environment as shown above.
 3. Install dependencies with `pip install -r requirements.txt`.
-4. Start developing! You can run the OSS library or its tests as needed.
+4. Start developing!
 
 - Make sure you are in the docbinder-oss folder and your virtual environment is activated before running any scripts or development commands.
+
+
