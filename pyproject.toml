@@ -23,3 +23,16 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/docbinder_oss"]
 include = ["src/docbinder_oss/**"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.0",
+    "tox-uv>=1.26.0",
+]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests",
+]

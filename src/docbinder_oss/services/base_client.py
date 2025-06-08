@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
-from docbinder_oss.schemas import File, Permission
+
+from docbinder_oss.core.schemas import File, Permission
 
 
 class BaseStorageClient(ABC):
@@ -10,7 +11,7 @@ class BaseStorageClient(ABC):
     """
 
     @abstractmethod
-    def list_items(self, folder_id: Optional[str] = None) -> List[File]:
+    def list_files(self, folder_id: Optional[str] = None) -> List[File]:
         """
         Lists items (files and folders) within a specific folder.
 
@@ -24,7 +25,7 @@ class BaseStorageClient(ABC):
         pass
 
     @abstractmethod
-    def get_item_metadata(self, item_id: str) -> File:
+    def get_file_metadata(self, item_id: str) -> File:
         """
         Retrieves all available metadata for a specific file or folder.
 
