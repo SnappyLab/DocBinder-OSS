@@ -5,7 +5,6 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
-<<<<<<< HEAD
 
 from docbinder_oss.core.config import settings
 from docbinder_oss.core.schemas import Bucket, File, Permission
@@ -15,12 +14,6 @@ from docbinder_oss.services.google_drive.google_drive_files import GoogleDriveFi
 from docbinder_oss.services.google_drive.google_drive_permissions import (
     GoogleDrivePermissions,
 )
-=======
-from ..base_client import BaseStorageClient
-from .google_drive_buckets import GoogleDriveBuckets
-from .google_drive_objects import GoogleDriveObjects
-from .google_drive_permissions import GoogleDrivePermissions
->>>>>>> 860d13c335fecb7e3d8058d97858d1229efcbbb2
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
