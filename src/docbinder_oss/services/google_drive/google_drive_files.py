@@ -42,12 +42,6 @@ class GoogleDriveFiles:
                 .execute()
             )
 
-        logger.info(resp.get("files", [])[0])
-
-        logger.info(
-            {owner.get("displayName") for owner in resp.get("files")[0].get("owners")}
-        )
-
         return [
             File(
                 id=f.get("id"),
