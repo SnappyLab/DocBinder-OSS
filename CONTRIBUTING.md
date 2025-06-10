@@ -17,33 +17,46 @@ Thank you for your interest in contributing! Please follow these guidelines:
 
 Thank you for helping make DocBinder OSS better!
 
-## Virtual Environment Setup
+# Local Development
+## Managing Dependencies and Environment with `uv`
 
-To create and activate the OSS library virtual environment:
+This project uses [`uv`](https://github.com/astral-sh/uv) for dependency management and environment setup.
 
-```zsh
-python3 -m venv .venv-oss
-source .venv-oss/bin/activate
-```
+### Setting Up the Environment
 
-Install dependencies:
+To create a virtual environment and install dependencies:
 
 ```zsh
-pip install -r requirements.txt
+uv venv
+source .venv/bin/activate
+uv pip install -r requirements.txt
 ```
 
-To deactivate:
+### Adding or Updating a Dependency
+
+To add or update a package (e.g., `docbinder-oss`) and update `requirements.txt`:
+
 ```zsh
-deactivate
+uv pip install docbinder-oss --upgrade --system --sync
 ```
 
-## Getting Started with Development
+### Exporting Current Environment
 
-1. Clone the repository and navigate to the docbinder-oss folder.
-2. Create and activate the virtual environment as shown above.
-3. Install dependencies with `pip install -r requirements.txt`.
-4. Start developing!
+To export your current environment to `requirements.txt`:
 
-- Make sure you are in the docbinder-oss folder and your virtual environment is activated before running any scripts or development commands.
+```zsh
+uv pip freeze > requirements.txt
+```
 
+### Generating or Updating `pyproject.toml`
 
+To generate or update `pyproject.toml` with your current dependencies:
+
+```zsh
+uv pip compile --generate pyproject.toml
+```
+
+---
+
+**Note:**  
+Always use `uv` commands to manage dependencies and environments to keep `requirements.txt` and `pyproject.toml` in sync.
