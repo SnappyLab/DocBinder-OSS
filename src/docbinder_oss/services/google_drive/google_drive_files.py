@@ -2,11 +2,11 @@ import logging
 
 from googleapiclient.discovery import Resource
 
-from docbinder_oss.core.schemas import File, FileList, User
+from docbinder_oss.core.schemas import File, User
 
 logger = logging.getLogger(__name__)
 
-REQUIRED_FIELDS = "id,name,mimeType,kind,size,createdTime,modifiedTime,owners(permissionId,displayName,emailAddress,photoLink),lastModifyingUser,webViewLink,iconLink,trashed,shared,starred"
+REQUIRED_FIELDS = "id,name,mimeType,kind,size,createdTime,modifiedTime,owners(permissionId,displayName,emailAddress,photoLink),lastModifyingUser(permissionId,displayName,emailAddress,photoLink),webViewLink,iconLink,trashed,shared,starred"
 
 
 class GoogleDriveFiles:
@@ -14,7 +14,7 @@ class GoogleDriveFiles:
         self.service = service
 
     def list_files(self, folder_id=None):
-        if len(folder_id.split("|", 1)) > 1:
+        if folder_id and len(folder_id.split("|", 1)) > 1:
             logger.warning("Folder ID should not contain '|' character")
             _, folder_id = folder_id.split("|", 1)
 
@@ -33,7 +33,7 @@ class GoogleDriveFiles:
                 self.service.files()
                 .list(
                     corpora="drive",
-                    q=query or "",
+                    q=f"'{folder_id}' in parents and trashed=false",
                     driveId=folder_id,
                     includeItemsFromAllDrives=True,
                     supportsAllDrives=True,
@@ -48,45 +48,40 @@ class GoogleDriveFiles:
             {owner.get("displayName") for owner in resp.get("files")[0].get("owners")}
         )
 
-        return FileList(
-            files=[
-                File(
-                    id=f.get("id"),
-                    name=f.get("name"),
-                    kind=f.get("kind"),
-                    mime_type=f.get("mimeType"),
-                    size=f.get("size"),
-                    created_time=f.get("createdTime", None),
-                    modified_time=f.get("modifiedTime", None),
-                    owners=[
-                        User(
-                            display_name=owner.get("displayName"),
-                            email_address=owner.get("emailAddress"),
-                            photo_link=owner.get("photoLink"),
-                            kind=owner.get("kind"),
-                        )
-                        for owner in f.get("owners")
-                    ],
-                    last_modifying_user=User(
-                        display_name=f.get("lastModifyingUser", {}).get("displayName"),
-                        email_address=f.get("lastModifyingUser", {}).get(
-                            "emailAddress"
-                        ),
-                        photo_link=f.get("lastModifyingUser", {}).get("photoLink"),
-                        kind=f.get("lastModifyingUser", {}).get("kind"),
-                    ),
-                    web_view_link=f.get("webViewLink"),
-                    icon_link=f.get("iconLink"),
-                    trashed=f.get("trashed"),
-                    shared=f.get("shared"),
-                    starred=f.get("starred"),
-                    is_folder=f.get("mimeType") == "application/vnd.google-apps.folder",
-                    parents=folder_id if folder_id else None,
-                )
-                for f in resp.get("files")
-            ],
-            next_page_token=resp.get("nextPageToken"),
-        )
+        return [
+            File(
+                id=f.get("id"),
+                name=f.get("name"),
+                kind=f.get("kind"),
+                mime_type=f.get("mimeType"),
+                size=f.get("size"),
+                created_time=f.get("createdTime", None),
+                modified_time=f.get("modifiedTime", None),
+                owners=[
+                    User(
+                        display_name=owner.get("displayName"),
+                        email_address=owner.get("emailAddress"),
+                        photo_link=owner.get("photoLink"),
+                        kind=owner.get("kind"),
+                    )
+                    for owner in f.get("owners")
+                ],
+                last_modifying_user=User(
+                    display_name=f.get("lastModifyingUser", {}).get("displayName"),
+                    email_address=f.get("lastModifyingUser", {}).get("emailAddress"),
+                    photo_link=f.get("lastModifyingUser", {}).get("photoLink"),
+                    kind=f.get("lastModifyingUser", {}).get("kind"),
+                ),
+                web_view_link=f.get("webViewLink"),
+                icon_link=f.get("iconLink"),
+                trashed=f.get("trashed"),
+                shared=f.get("shared"),
+                starred=f.get("starred"),
+                is_folder=f.get("mimeType") == "application/vnd.google-apps.folder",
+                parents=folder_id if folder_id else None,
+            )
+            for f in resp.get("files")
+        ]
 
     def get_file_metadata(self, file_id: str):
         item_metadata = (

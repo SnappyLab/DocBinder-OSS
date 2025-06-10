@@ -22,9 +22,9 @@ def test_get_permissions(mock_gdrive_service, gdrive_client):
 
     permissions = gdrive_client.get_permissions("1234")
 
-    assert isinstance(permissions.permissions, list)
-    assert len(permissions.permissions) == 1
-    assert permissions.permissions == [
+    assert isinstance(permissions, list)
+    assert len(permissions) == 1
+    assert permissions == [
         Permission(
             id="1234",
             kind="drive#permission",

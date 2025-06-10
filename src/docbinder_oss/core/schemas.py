@@ -81,13 +81,6 @@ class File(BaseModel):
             self.is_folder = False
 
 
-class FileList(BaseModel):
-    """Represents a paginated list of File items."""
-
-    files: List[File]
-    next_page_token: Optional[str]
-
-
 class Permission(BaseModel):
     """Represents a permission for a file or folder."""
 
@@ -99,9 +92,3 @@ class Permission(BaseModel):
     domain: Optional[str]
     deleted: Optional[bool]
     expiration_time: Optional[str]
-
-
-class PermissionList(BaseModel):
-    """Represents a list of Permission items."""
-
-    permissions: List[Permission]

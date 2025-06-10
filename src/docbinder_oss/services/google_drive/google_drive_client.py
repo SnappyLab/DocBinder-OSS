@@ -7,7 +7,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
 from docbinder_oss.core.config import settings
-from docbinder_oss.core.schemas import Bucket, File, FileList, PermissionList
+from docbinder_oss.core.schemas import Bucket, File, Permission
 from docbinder_oss.services.base_client import BaseStorageClient
 from docbinder_oss.services.google_drive.google_drive_buckets import GoogleDriveBuckets
 from docbinder_oss.services.google_drive.google_drive_files import GoogleDriveFiles
@@ -57,11 +57,11 @@ class GoogleDriveClient(BaseStorageClient):
     def list_buckets(self) -> List[Bucket]:
         return self.buckets.list_buckets()
 
-    def list_files(self, folder_id: Optional[str] = None) -> FileList:
+    def list_files(self, folder_id: Optional[str] = None) -> List[File]:
         return self.files.list_files(folder_id)
 
     def get_file_metadata(self, file_id: str) -> File:
         return self.files.get_file_metadata(file_id)
 
-    def get_permissions(self, file_id: str) -> PermissionList:
+    def get_permissions(self, file_id: str) -> List[Permission]:
         return self.permissions.get_permissions(file_id)
