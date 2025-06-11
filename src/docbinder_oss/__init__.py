@@ -8,5 +8,4 @@ Exports:
     - GoogleDriveClient: Google Drive connector implementing BaseStorageClient
 """
 
-from .main import hello_oss
-from .services.google_drive.google_drive_client import GoogleDriveClient
+from .main import app
