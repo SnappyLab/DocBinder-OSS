@@ -5,8 +5,8 @@ from pydantic import BaseModel, Field, ValidationError
 import typer
 import yaml
 
-from docbinder_oss.services.dropbox.dropbox_provider_config import DropboxProviderConfig
-from docbinder_oss.services.google_drive.google_provider_config import GoogleProviderConfig
+from docbinder_oss.services.dropbox.dropbox_service_config import DropboxProviderConfig
+from docbinder_oss.services.google_drive.google_drive_service_config import GoogleProviderConfig
 
 CONFIG_PATH = os.path.expanduser("~/.config/docbinder/config.yaml")
 
@@ -17,6 +17,7 @@ ProviderConfig = Annotated[
 
 class ConfigSchema(BaseModel):
     providers: List[ProviderConfig]
+
 
 def load_config() -> ConfigSchema:
     if not os.path.exists(CONFIG_PATH):

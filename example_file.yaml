@@ -1,6 +1,6 @@
 providers:
   - type: google
-    gcp_credentials_json: /path/to/creds.json
-    gcp_token_json: /path/to/token.json
+    gcp_credentials_json: gcp_credentials.json
+    gcp_token_json: gcp_token.json
   - type: dropbox
     api_key: dropbox-api-key

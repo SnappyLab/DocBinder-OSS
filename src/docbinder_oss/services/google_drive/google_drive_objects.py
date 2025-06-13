@@ -1,5 +1,4 @@
 import logging
-from googleapiclient.discovery import Resource
 from typing import List, Dict, Any
 
 logger = logging.getLogger(__name__)
@@ -48,7 +47,7 @@ class GoogleDriveObjects:
             logger.error(f"Error getting object metadata: {e}")
             return {}
 
-    def get_objects_metadata(self, object_name_list: List[str]) -> List[MetadataResponse]:
+    def get_objects_metadata(self, object_name_list: List[str]): # type: to add
         # This method can be further improved to fetch only requested files
         try:
             bucket_id = 'root'  # Default to root for now

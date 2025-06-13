@@ -1,11 +1,20 @@
 import typer
 import yaml
-from typing import Optional, List
+from typing import Optional, List, Annotated
 from pydantic import ValidationError
 
 from docbinder_oss.helpers.config import save_config, validate_config
 
 app = typer.Typer()
+
+# --- Provider Subcommand Group ---
+# We create a separate Typer app for the 'provider' command.
+# This allows us to nest commands like 'provider list' and 'provider get'.
+provider_app = typer.Typer(
+    help="Commands to manage providers. List them or get details for a specific one."
+)
+# We add this group to our main application.
+app.add_typer(provider_app, name="provider")
 
 # This is the main entry point for the DocBinder CLI.
 @app.callback()
@@ -56,6 +65,64 @@ def setup(
         typer.echo(f"Error saving config: {e}")
         raise typer.Exit(code=1)
     typer.echo("Configuration saved successfully.")
+
+@provider_app.command()
+def list():
+    """List all configured providers."""
+    from docbinder_oss.helpers.config import load_config
+
+    config = load_config()
+    if not config.providers:
+        typer.echo("No providers configured.")
+        raise typer.Exit(code=1)
+
+    for provider in config.providers:
+        typer.echo(f"Provider: {provider.type}")
+
+@provider_app.command("get")
+def get_provider(
+    name: Annotated[str, typer.Argument(help="The name of the provider to get the connection information.")]
+):
+    """Get connection information for a specific provider."""
+    from docbinder_oss.helpers.config import load_config
+
+    config = load_config()
+    if not config.providers:
+        typer.echo("No providers configured.")
+        raise typer.Exit(code=1)
+    for provider in config.providers:
+        if provider.type == name:
+            typer.echo(f"Provider '{name}' found with type: {provider.type}")
+            typer.echo(f"Configuration: {provider.model_dump()}")
+            return
+    # If we reach here, the provider was not found
+    typer.echo(f"Provider '{name}' not found in configuration.")
+    raise typer.Exit(code=1)
+
+
+@provider_app.command("test")
+def test(
+    name: Annotated[str, typer.Argument(help="The name of the provider to test the connection.")]
+):
+    """Test the connection to a specific provider."""
+    from docbinder_oss.helpers.config import load_config
+    
+    config = load_config()
+    if not config.providers:
+        typer.echo("No providers configured.")
+        raise typer.Exit(code=1)
+    for provider in config.providers:
+        if provider.type == name:
+            typer.echo(f"Testing connection for provider '{name}'...")
+            try:
+                provider.test_connection()  # Assuming each provider has a test_connection method
+                typer.echo(f"Connection to provider '{name}' is successful.")
+            except Exception as e:
+                typer.echo(f"Failed to connect to provider '{name}': {e}")
+            return
+    # If we reach here, the provider was not found
+    typer.echo(f"Provider '{name}' not found in configuration.")
+    raise typer.Exit(code=1)
 
 if __name__ == "__main__":
     app()
