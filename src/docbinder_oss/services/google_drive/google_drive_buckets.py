@@ -1,19 +1,45 @@
 import logging
+from typing import List
+
 from googleapiclient.discovery import Resource
-from typing import List, Any
+from docbinder_oss.core.schemas import Bucket
+
 
 logger = logging.getLogger(__name__)
 
+
 class GoogleDriveBuckets:
-    def __init__(self, service: Any):
+    def __init__(self, service: Resource):
         self.service = service
 
-    def list_buckets(self) -> List[str]:
-        drives = [{'id': 'root', 'name': 'My Drive'}]
-        try:
-            resp = self.service.drives().list().execute()
-            for d in resp.get('drives', []):
-                drives.append({'id': d['id'], 'name': d['name']})
-        except Exception as e:
-            logger.error(f"Error listing buckets: {e}")
-        return [f"{d['name']}|{d['id']}" for d in drives]
+    def list_buckets(self) -> List[Bucket]:
+        drives = [
+            Bucket(
+                id="root",
+                name="My Drive",
+                kind="drive#drive",
+                created_time=None,
+                viewable=True,
+                restrictions=None,
+            )
+        ]  # Default root drive
+
+        resp = (
+            self.service.drives()
+            .list(fields="drives(id,name,kind,createdTime,hidden,restrictions)")
+            .execute()
+        )
+
+        for drive in resp.get("drives", []):
+            drives.append(
+                Bucket(
+                    id=drive.get("id"),
+                    name=drive.get("name"),
+                    kind=drive.get("kind", "drive#drive"),
+                    created_time=drive.get("createdTime"),
+                    viewable=not drive.get("hidden"),
+                    restrictions=drive.get("restrictions"),
+                )
+            )
+
+        return drives
