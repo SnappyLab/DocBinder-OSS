@@ -73,3 +73,7 @@ ENV/
 
 # Logs
 *.log
+
+# Credentials
+gcp_credentials.json
+gcp_token.json
