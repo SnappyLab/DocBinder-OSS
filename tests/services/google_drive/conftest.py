@@ -5,11 +5,13 @@ import pytest
 from docbinder_oss.services.google_drive.google_drive_client import (
     GoogleDriveClient,
 )
-from docbinder_oss.core.config import settings
+from docbinder_oss.core.config import Settings
 
-settings.gcp_project = "test-project-id"
-settings.gcp_token_json = "tests/data/gcp_token.json"
-settings.gcp_credentials_json = "tests/data/gcp_credentials.json"
+settings = Settings(
+    "test-project-id",
+    "tests/data/gcp_credentials.json",
+    "tests/data/gcp_token.json",
+)
 
 @pytest.fixture
 def mock_gdrive_service():
