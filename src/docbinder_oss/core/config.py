@@ -7,6 +7,3 @@ class Settings(BaseSettings):
     gcp_project: str
     gcp_credentials_json: str
     gcp_token_json: str
-
-
-settings = Settings()

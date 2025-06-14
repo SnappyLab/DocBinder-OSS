@@ -6,7 +6,7 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
-from docbinder_oss.core.config import settings
+from docbinder_oss.core.config import Settings
 from docbinder_oss.core.schemas import Bucket, File, Permission
 from docbinder_oss.services.base_client import BaseStorageClient
 from docbinder_oss.services.google_drive.google_drive_buckets import GoogleDriveBuckets
@@ -27,6 +27,7 @@ class GoogleDriveClient(BaseStorageClient):
             "https://www.googleapis.com/auth/drive.metadata.readonly",
             "https://www.googleapis.com/auth/drive.activity.readonly",
         ]
+        self.settings = Settings()
         self.creds = credentials or self._get_credentials()
         self.service = build("drive", "v3", credentials=self.creds)
         self.buckets = GoogleDriveBuckets(self.service)
@@ -36,7 +37,7 @@ class GoogleDriveClient(BaseStorageClient):
     def _get_credentials(self):
         try:
             creds = Credentials.from_authorized_user_file(
-                settings.gcp_token_json, scopes=self.SCOPES
+                self.settings.gcp_token_json, scopes=self.SCOPES
             )
         except (FileNotFoundError, ValueError):
             logger.warning("Credentials file not found or invalid, re-authenticating")
@@ -46,7 +47,7 @@ class GoogleDriveClient(BaseStorageClient):
                 creds.refresh(Request())
             else:
                 flow = InstalledAppFlow.from_client_secrets_file(
-                    settings.gcp_credentials_json, self.SCOPES
+                    self.settings.gcp_credentials_json, self.SCOPES
                 )
                 creds = flow.run_local_server(port=0)
             # Save the credentials for the next run
