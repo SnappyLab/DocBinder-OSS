@@ -1,3 +1,3 @@
 # Welcome!
 
-We are just getting started. 
+We are just getting started.
