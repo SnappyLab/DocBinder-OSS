@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from docbinder_oss.core.schemas import File
 
 
@@ -43,7 +44,7 @@ def test_list_files(mock_gdrive_service, gdrive_client):
     )
 
     files = gdrive_client.list_files()
-    
+
     print(files)
 
     assert isinstance(files, list)
@@ -59,8 +60,14 @@ def test_list_files(mock_gdrive_service, gdrive_client):
             icon_link="https://drive.google.com/drive/folders/1234/icon",
             created_time=datetime(2023, 10, 1, 12, 0, 0),
             modified_time=datetime(2023, 10, 1, 12, 0, 0),
-            owners=[{"display_name": "Test User", "email_address": "test@test.com", "kind": "drive#user",
-                "photo_link": "https://example.com/photo.jpg"}],
+            owners=[
+                {
+                    "display_name": "Test User",
+                    "email_address": "test@test.com",
+                    "kind": "drive#user",
+                    "photo_link": "https://example.com/photo.jpg",
+                }
+            ],
             last_modifying_user={
                 "display_name": "Test User",
                 "email_address": "test@test.com",

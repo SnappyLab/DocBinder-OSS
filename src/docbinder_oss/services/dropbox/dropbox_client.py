@@ -1,4 +1,4 @@
-from docbinder_oss.services.base_client import BaseStorageClient
+from docbinder_oss.services.base_class import BaseStorageClient
 
 
 class DropboxClient(BaseStorageClient):
