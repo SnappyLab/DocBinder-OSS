@@ -141,6 +141,7 @@ dependencies = [
     { name = "pytest" },
     { name = "pyyaml" },
     { name = "rich" },
+    { name = "tox" },
     { name = "typer" },
 ]
 
@@ -160,6 +161,7 @@ requires-dist = [
     { name = "pytest", specifier = ">=8.4.0" },
     { name = "pyyaml", specifier = ">=6.0.2" },
     { name = "rich", specifier = ">=14.0.0" },
+    { name = "tox", specifier = ">=4.26.0" },
     { name = "typer", specifier = ">=0.16.0" },
 ]
 
