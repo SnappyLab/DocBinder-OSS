@@ -1,4 +1,5 @@
 import logging
+import os
 from typing import List, Optional
 
 from google.auth.transport.requests import Request
@@ -38,10 +39,13 @@ class GoogleDriveClient(BaseStorageClient):
         self.permissions = GoogleDrivePermissions(self.service)
 
     def _get_credentials(self):
-        token_path = self.config.name + "_token.json"
+        TOKEN_PATH = os.path.expanduser("~/.config/docbinder/gcp/" + self.config.name + "_token.json")
+        # Ensure the directory exists
+        os.makedirs(os.path.dirname(TOKEN_PATH), exist_ok=True)
+        
         try:
             creds = Credentials.from_authorized_user_file(
-                token_path, scopes=self.SCOPES
+                TOKEN_PATH, scopes=self.SCOPES
             )
         except (FileNotFoundError, ValueError):
             logger.warning("Credentials file not found or invalid, re-authenticating")
@@ -55,7 +59,7 @@ class GoogleDriveClient(BaseStorageClient):
                 )
                 creds = flow.run_local_server(port=0)
             # Save the credentials for the next run
-            with open(token_path, "w") as token:
+            with open(TOKEN_PATH, "w") as token:
                 token.write(creds.to_json())
         return creds
 
