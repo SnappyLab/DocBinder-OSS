@@ -2,7 +2,7 @@ import importlib
 import logging
 import pkgutil
 from pathlib import Path
-from typing import Annotated, Optional, Type, Union
+from typing import Annotated, Optional, Union
 
 from pydantic import Field
 from rich.logging import RichHandler
@@ -73,8 +73,7 @@ def load_services(package):
         except Exception as e:
             logger.error(f"Failed to import {full_module_path}. Error: {e}")
 
-
-def get_service_union() -> Type:
+def get_service_union() -> Annotated:
     """
     Dynamically creates a discriminated union of all ServiceConfig subclasses.
     """

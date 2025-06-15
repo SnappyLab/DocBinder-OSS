@@ -33,7 +33,7 @@ def test_get_permissions(mock_gdrive_service, gdrive_client):
             user=User(
                 display_name="Test User",
                 email_address="test@test.com",
-                photo_link="https://example.com/photo.jpg",
+                photo_link="https://example.com/photo.jpg",  # type: ignore
                 kind="drive#user",
             ),
             domain="test.test",

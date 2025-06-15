@@ -38,9 +38,10 @@ class GoogleDriveClient(BaseStorageClient):
         self.permissions = GoogleDrivePermissions(self.service)
 
     def _get_credentials(self):
+        token_path = self.config.name + "_token.json"
         try:
             creds = Credentials.from_authorized_user_file(
-                self.config.gcp_token_json, scopes=self.SCOPES
+                token_path, scopes=self.SCOPES
             )
         except (FileNotFoundError, ValueError):
             logger.warning("Credentials file not found or invalid, re-authenticating")
@@ -54,21 +55,26 @@ class GoogleDriveClient(BaseStorageClient):
                 )
                 creds = flow.run_local_server(port=0)
             # Save the credentials for the next run
-            with open("gcp_token.json", "w") as token:
+            with open(token_path, "w") as token:
                 token.write(creds.to_json())
         return creds
 
-    def test_connection(self) -> User:
-        return self.permissions.get_user()
+    def test_connection(self) -> bool:
+        try:
+            self.permissions.get_user()
+            return True
+        except Exception as e:
+            logger.error(f"Test connection failed: {e}")
+            return False
 
-    def list_buckets(self) -> list[str]:
+    def list_buckets(self) -> list:
         return self.buckets.list_buckets()
 
     def list_files(self, folder_id: Optional[str] = None) -> List[File]:
         return self.files.list_files(folder_id)
 
-    def get_file_metadata(self, file_id: str) -> File:
-        return self.files.get_file_metadata(file_id)
+    def get_file_metadata(self, item_id: str) -> File:
+        return self.files.get_file_metadata(item_id)
 
-    def get_permissions(self, file_id: str) -> List[Permission]:
-        return self.permissions.get_permissions(file_id)
+    def get_permissions(self, item_id: str) -> List[Permission]:
+        return self.permissions.get_permissions(item_id)
