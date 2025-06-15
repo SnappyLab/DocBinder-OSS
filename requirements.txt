@@ -1,7 +1,0 @@
-hatchling
-setuptools
-wheel
-tox
-fastapi
-rich
-uvicorn

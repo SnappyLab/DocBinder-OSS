@@ -11,6 +11,23 @@ class GoogleDrivePermissions:
     def __init__(self, service: Resource):
         self.service = service
 
+    def get_user(self):
+        """
+        Retrieves the authenticated user's information.
+
+        Returns:
+            User object containing the user's details.
+        """
+        resp = self.service.about().get(fields="user").execute()
+        user_info = resp.get("user", {})
+
+        return User(
+            display_name=user_info.get("displayName"),
+            email_address=user_info.get("emailAddress"),
+            photo_link=user_info.get("photoLink"),
+            kind="drive#user",  # 'kind' is not always present in the User schema, so we set it to "drive#user" by default
+        )
+
     def get_permissions(self, item_id: str):
         resp = (
             self.service.permissions()

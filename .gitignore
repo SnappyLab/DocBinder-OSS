@@ -76,4 +76,4 @@ ENV/
 
 # Credentials
 gcp_credentials.json
-gcp_token.json
+*_token.json
