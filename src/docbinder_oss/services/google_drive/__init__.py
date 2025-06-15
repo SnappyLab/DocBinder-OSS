@@ -25,3 +25,18 @@ def register() -> dict:
         "config_class": GoogleDriveServiceConfig,
         "client_class": GoogleDriveClient,
     }
+
+def get_service_name() -> str:
+    """
+    Returns the name of the service.
+    This is used for logging and identification purposes.
+    """
+    return "Google Drive"
+
+def get_service_display_name() -> str:
+    """
+    Returns the display name of the service.
+    This is used for user-friendly identification.
+    """
+    return "Google Drive Service"
+    return

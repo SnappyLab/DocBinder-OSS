@@ -42,7 +42,7 @@ class GoogleDriveClient(BaseStorageClient):
         TOKEN_PATH = os.path.expanduser("~/.config/docbinder/gcp/" + self.config.name + "_token.json")
         # Ensure the directory exists
         os.makedirs(os.path.dirname(TOKEN_PATH), exist_ok=True)
-        
+
         try:
             creds = Credentials.from_authorized_user_file(
                 TOKEN_PATH, scopes=self.SCOPES
@@ -76,6 +76,14 @@ class GoogleDriveClient(BaseStorageClient):
 
     def list_files(self, folder_id: Optional[str] = None) -> List[File]:
         return self.files.list_files(folder_id)
+    
+    def list_all_files(self) -> List[File]:
+        buckets = self.list_buckets()
+        all_files = []
+        for bucket in buckets:
+            files = self.files.list_files(bucket.id)
+            all_files.extend(files)
+        return all_files
 
     def get_file_metadata(self, item_id: str) -> File:
         return self.files.get_file_metadata(item_id)
