@@ -42,7 +42,7 @@ jobs:
 
       - name: Run tox with uv
         run: |
-          uv run tox -e py${{ matrix.tox-env }}
+          uv run tox -e ${{ matrix.tox-env }}
   pypi-publish:
     runs-on: ubuntu-latest
     needs:
