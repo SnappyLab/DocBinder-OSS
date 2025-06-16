@@ -37,7 +37,7 @@ This guide will help you configure Google Drive as a provider for DocBinder.
 ## Step 5: Edit the Config File
 
 Create the config file, and add a provider entry for Google Drive:
-```python
+```yaml
 providers:
   - type: google_drive
     name: my_gdrive
