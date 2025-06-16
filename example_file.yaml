@@ -2,6 +2,7 @@ providers:
   - type: google_drive
     name: my_google_drive
     gcp_credentials_json: gcp_credentials.json
+    gcp_token_json: gcp_token.json
   # - type: dropbox
   #   name: my_dropbox
   #   api_key: dropbox-api-key
