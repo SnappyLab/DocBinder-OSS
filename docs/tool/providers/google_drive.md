@@ -47,10 +47,10 @@ providers:
 
 * type: Must be google_drive.
 * name: A unique name for this provider.
-* gcp_credentials_json: Absolute path to your Google Cloud credentials file.
-* gcp_token_json: Absolute path where the token will be stored/generated.
+* gcp_credentials_json: Absolute/relative path to your Google Cloud credentials file.
+* gcp_token_json: Absolute/relative path where the token will be stored/generated.
 
-## Step 5: Authenticate and Test
+## Step 6: Authenticate and Test
 
 1. Run DocBinder with the Google Drive provider enabled.
 2. On first run, follow the authentication prompt to grant access.
