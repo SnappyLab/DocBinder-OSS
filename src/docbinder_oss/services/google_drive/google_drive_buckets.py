@@ -2,8 +2,8 @@ import logging
 from typing import List
 
 from googleapiclient.discovery import Resource
-from docbinder_oss.core.schemas import Bucket
 
+from docbinder_oss.core.schemas import Bucket
 
 logger = logging.getLogger(__name__)
 
