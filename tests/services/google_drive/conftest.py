@@ -42,6 +42,6 @@ def gdrive_client(mock_gdrive_service):
         return_value=MagicMock(),
     ):
         config = GoogleDriveServiceConfig(
-            name="test_gdrive", gcp_credentials_json="fake_creds.json"
+            name="test_gdrive", gcp_credentials_json="fake_creds.json", gcp_token_json="fake_token.json"
         )
         return GoogleDriveClient(config=config)
