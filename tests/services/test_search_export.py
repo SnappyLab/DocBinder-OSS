@@ -50,47 +50,8 @@ def patch_provider(monkeypatch, tmp_path):
     yield
     os.chdir(orig_cwd)
 
-def test_search_export_csv():
-    runner = CliRunner()
-    result = runner.invoke(app, ["search", "--export-format", "csv"])
-    assert result.exit_code == 0
-    assert os.path.exists("search_results.csv")
-    with open("search_results.csv") as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
-        assert len(rows) == 2
-        assert set(r["name"] for r in rows) == {"Alpha Report", "Beta Notes"}
-
-def test_search_export_json():
-    runner = CliRunner()
-    result = runner.invoke(app, ["search", "--export-format", "json"])
-    assert result.exit_code == 0
-    assert os.path.exists("search_results.json")
-    with open("search_results.json") as f:
-        data = json.load(f)
-        assert isinstance(data, list)
-        assert len(data) == 2
-        names = set(d["name"] for d in data)
-        assert names == {"Alpha Report", "Beta Notes"}
-
-def test_search_name_filter():
-    runner = CliRunner()
-    result = runner.invoke(app, ["search", "--name", "Alpha", "--export-format", "json"])
-    assert result.exit_code == 0
-    with open("search_results.json") as f:
-        data = json.load(f)
-        assert len(data) == 1
-        assert data[0]["name"] == "Alpha Report"
-
-def test_search_owner_filter():
-    runner = CliRunner()
-    result = runner.invoke(app, ["search", "--owner", "beta@b.com", "--export-format", "json"])
-    assert result.exit_code == 0
-    with open("search_results.json") as f:
-        data = json.load(f)
-        assert len(data) == 1
-        assert data[0]["name"] == "Beta Notes"
-
+# The test logic for search export and filters has been consolidated into `tests/commands/test_search_command.py`.
+# This file no longer contains duplicate tests.
 def test_search_updated_after_filter():
     runner = CliRunner()
     result = runner.invoke(app, ["search", "--updated-after", "2024-02-01T00:00:00", "--export-format", "json"])
