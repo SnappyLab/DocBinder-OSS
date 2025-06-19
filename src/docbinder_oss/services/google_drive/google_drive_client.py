@@ -78,11 +78,26 @@ class GoogleDriveClient(BaseStorageClient):
         return self.files.list_files(folder_id)
     
     def list_all_files(self) -> List[File]:
+        """
+        Recursively list all files and folders in all buckets (drives).
+        Handles My Drive and Shared Drives correctly.
+        """
+        def _recursive_list(folder_id, is_drive_root=False):
+            items = self.files.list_files(folder_id, is_drive_root=is_drive_root)
+            all_items = []
+            for item in items:
+                all_items.append(item)
+                # Use mime_type to check if this is a folder
+                if getattr(item, "mime_type", None) == "application/vnd.google-apps.folder":
+                    all_items.extend(_recursive_list(item.id))
+            return all_items
+
         buckets = self.list_buckets()
         all_files = []
         for bucket in buckets:
-            files = self.files.list_files(bucket.id)
-            all_files.extend(files)
+            # If bucket.id == "root", it's My Drive; otherwise, it's a shared drive
+            is_drive_root = bucket.id != "root"
+            all_files.extend(_recursive_list(bucket.id, is_drive_root=is_drive_root))
         return all_files
 
     def get_file_metadata(self, item_id: str) -> File:
@@ -90,3 +105,4 @@ class GoogleDriveClient(BaseStorageClient):
 
     def get_permissions(self, item_id: str) -> List[Permission]:
         return self.permissions.get_permissions(item_id)
+    

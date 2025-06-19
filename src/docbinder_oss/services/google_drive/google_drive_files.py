@@ -13,35 +13,43 @@ class GoogleDriveFiles:
     def __init__(self, service: Resource):
         self.service = service
 
-    def list_files(self, folder_id=None):
-        if folder_id and len(folder_id.split("|", 1)) > 1:
-            logger.warning("Folder ID should not contain '|' character")
-            _, folder_id = folder_id.split("|", 1)
-
-        if folder_id == "root":
-            query = "'root' in parents and trashed=false"
+    def list_files(self, folder_id=None, is_drive_root=False) -> list[File]:
+        # If listing the root of a shared drive
+        if is_drive_root:
             resp = (
-                self.service.files()
+                self.service.files()  # type: ignore[attr-defined]
                 .list(
-                    q=query,
+                    corpora="drive",
+                    driveId=folder_id,
+                    includeItemsFromAllDrives=True,
+                    supportsAllDrives=True,
+                    q="'root' in parents and trashed=false",
+                    fields=f"files({REQUIRED_FIELDS})",
+                )
+                .execute()
+            )
+        elif folder_id == "root" or folder_id is None:
+            # Listing the root of My Drive
+            resp = (
+                self.service.files()  # type: ignore[attr-defined]
+                .list(
+                    q="'root' in parents and trashed=false",
                     fields=f"files({REQUIRED_FIELDS})",
                 )
                 .execute()
             )
         else:
+            # Listing a regular folder
             resp = (
-                self.service.files()
+                self.service.files()  # type: ignore[attr-defined]
                 .list(
-                    corpora="drive",
                     q=f"'{folder_id}' in parents and trashed=false",
-                    driveId=folder_id,
                     includeItemsFromAllDrives=True,
                     supportsAllDrives=True,
                     fields=f"files({REQUIRED_FIELDS})",
                 )
                 .execute()
             )
-
         return [
             File(
                 id=f.get("id"),
@@ -79,7 +87,7 @@ class GoogleDriveFiles:
 
     def get_file_metadata(self, file_id: str):
         item_metadata = (
-            self.service.files()
+            self.service.files()  # type: ignore[attr-defined]
             .get(
                 fileId=file_id,
                 fields=f"{REQUIRED_FIELDS}",
