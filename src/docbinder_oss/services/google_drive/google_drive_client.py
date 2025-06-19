@@ -55,7 +55,7 @@ class GoogleDriveClient(BaseStorageClient):
                 creds.refresh(Request())
             else:
                 flow = InstalledAppFlow.from_client_secrets_file(
-                    TOKEN_PATH, self.SCOPES
+                    self.config.gcp_credentials_json, self.SCOPES
                 )
                 creds = flow.run_local_server(port=0)
             # Save the credentials for the next run
