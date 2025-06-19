@@ -25,7 +25,8 @@ class GoogleDrivePermissions:
             display_name=user_info.get("displayName"),
             email_address=user_info.get("emailAddress"),
             photo_link=user_info.get("photoLink"),
-            # 'kind' is not always present in the User schema, so we set it to "drive#user" by default
+            # 'kind' is not always present in the User schema, so we set it to "drive#user"
+            #  by default
             kind="drive#user",
         )
 
@@ -46,7 +47,8 @@ class GoogleDrivePermissions:
                     display_name=perm.get("displayName"),
                     email_address=perm.get("emailAddress"),
                     photo_link=perm.get("photoLink"),
-                    # 'kind' is not always present in the User schema, so we set it to "drive#user" by default
+                    # 'kind' is not always present in the User schema, so we set it to "drive#user"
+                    #  by default
                     kind="drive#user",
                 ),
                 domain=perm.get("domain"),
