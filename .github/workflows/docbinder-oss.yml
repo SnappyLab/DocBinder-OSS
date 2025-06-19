@@ -40,6 +40,10 @@ jobs:
         run: |
           uv sync --locked --all-extras --dev
 
+      - name: Lint code with uv
+        run: |
+          uv run ruff check
+
       - name: Run tox with uv
         run: |
           uv run tox -e ${{ matrix.tox-env }}
