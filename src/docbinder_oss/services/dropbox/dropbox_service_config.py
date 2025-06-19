@@ -1,4 +1,4 @@
-from typing import Final, Literal
+from typing import Literal
 
 from docbinder_oss.services.base_class import ServiceConfig
 

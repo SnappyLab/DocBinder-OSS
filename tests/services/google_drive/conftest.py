@@ -5,7 +5,9 @@ import pytest
 from docbinder_oss.services.google_drive.google_drive_client import (
     GoogleDriveClient,
 )
-from docbinder_oss.services.google_drive.google_drive_service_config import GoogleDriveServiceConfig
+from docbinder_oss.services.google_drive.google_drive_service_config import (
+    GoogleDriveServiceConfig,
+)
 
 
 @pytest.fixture
@@ -35,9 +37,11 @@ def gdrive_client(mock_gdrive_service):
     the mock_gdrive_service fixture internally.
     """
     # Patch _get_credentials to avoid real auth
-    with patch("docbinder_oss.services.google_drive.google_drive_client.GoogleDriveClient._get_credentials", return_value=MagicMock()):
+    with patch(
+        "docbinder_oss.services.google_drive.google_drive_client.GoogleDriveClient._get_credentials",
+        return_value=MagicMock(),
+    ):
         config = GoogleDriveServiceConfig(
-            name="test_gdrive",
-            gcp_credentials_json="fake_creds.json"
+            name="test_gdrive", gcp_credentials_json="fake_creds.json", gcp_token_json="fake_token.json"
         )
         return GoogleDriveClient(config=config)
