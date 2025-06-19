@@ -14,7 +14,8 @@ class DummyFile:
         self.parents = parents or []
         self.is_folder = is_folder
         self.size = 1000
-        self.mime_type = "application/pdf"
+        # Use correct mime_type for folders and files
+        self.mime_type = "application/vnd.google-apps.folder" if is_folder else "application/pdf"
         self.created_time = "2024-01-01T00:00:00"
         self.modified_time = "2024-01-02T00:00:00"
         self.owners = [type("User", (), {"email_address": "owner@example.com"})()]
