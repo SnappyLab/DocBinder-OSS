@@ -45,7 +45,7 @@ class GoogleDriveClient(BaseStorageClient):
 
         try:
             creds = Credentials.from_authorized_user_file(
-                self.config.gcp_token_json, scopes=self.SCOPES
+                TOKEN_PATH, scopes=self.SCOPES
             )
         except (FileNotFoundError, ValueError):
             logger.warning("Credentials file not found or invalid, re-authenticating")
@@ -55,11 +55,11 @@ class GoogleDriveClient(BaseStorageClient):
                 creds.refresh(Request())
             else:
                 flow = InstalledAppFlow.from_client_secrets_file(
-                    self.config.gcp_credentials_json, self.SCOPES
+                    TOKEN_PATH, self.SCOPES
                 )
                 creds = flow.run_local_server(port=0)
             # Save the credentials for the next run
-            with open(self.config.gcp_token_json, "w") as token:
+            with open(TOKEN_PATH, "w") as token:
                 token.write(creds.to_json())
         return creds
 

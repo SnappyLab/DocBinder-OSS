@@ -28,79 +28,119 @@ def search(
         typer.echo("No providers configured.")
         raise typer.Exit(code=1)
 
-    results = []
+    # Build a mapping of id -> file for path reconstruction
+    all_items_by_id = {}
+    all_results = []
+    drive_id_to_name = {}
+    # If provider is Google Drive, build a mapping of drive id to drive name
     for provider_config in config.providers:
         if provider and provider_config.name != provider:
             continue
         client = create_provider_instance(provider_config)
         if client is None or not hasattr(client, "list_all_files"):
             continue
+        # Try to get drive mapping if possible
+        drive_id_to_name_local = {}
+        if hasattr(client, "buckets") and hasattr(client.buckets, "list_buckets"):  # type: ignore[attr-defined]
+            try:
+                for bucket in client.buckets.list_buckets():  # type: ignore[attr-defined]
+                    drive_id_to_name_local[bucket.id] = bucket.name
+            except Exception:
+                pass
+        drive_id_to_name.update(drive_id_to_name_local)
         try:
             files = client.list_all_files()
             for item in files:
-                # Name regex filter
-                if name:
-                    if not re.search(name, item.name or "", re.IGNORECASE):
-                        continue
-                # Owner/contributor/reader email filter
-                if owner:
-                    emails = set()
-                    owners_list = getattr(item, "owners", None) or []
-                    emails.update([u.email_address for u in owners_list if u and getattr(u, "email_address", None)])
-                    last_mod_user = getattr(item, "last_modifying_user", None)
-                    if last_mod_user and getattr(last_mod_user, "email_address", None):
-                        emails.add(last_mod_user.email_address)
-                    if owner not in emails:
-                        continue
-                # Last update filter
-                if updated_after:
-                    if not item.modified_time or datetime.fromisoformat(str(item.modified_time)) < datetime.fromisoformat(updated_after):
-                        continue
-                if updated_before:
-                    if not item.modified_time or datetime.fromisoformat(str(item.modified_time)) > datetime.fromisoformat(updated_before):
-                        continue
-                # Created at filter
-                if created_after:
-                    if not item.created_time or datetime.fromisoformat(str(item.created_time)) < datetime.fromisoformat(created_after):
-                        continue
-                if created_before:
-                    if not item.created_time or datetime.fromisoformat(str(item.created_time)) > datetime.fromisoformat(created_before):
-                        continue
-                # Size filter (in KB)
-                if min_size is not None:
-                    try:
-                        if not item.size or int(item.size) < min_size * 1024:
-                            continue
-                    except Exception:
-                        continue
-                if max_size is not None:
-                    try:
-                        if not item.size or int(item.size) > max_size * 1024:
-                            continue
-                    except Exception:
-                        continue
-                # Collect all possible params for export
-                results.append({
-                    "provider": provider_config.name,
-                    "id": getattr(item, "id", None),
-                    "name": getattr(item, "name", None),
-                    "size": getattr(item, "size", None),
-                    "mime_type": getattr(item, "mime_type", None),
-                    "created_time": getattr(item, "created_time", None),
-                    "modified_time": getattr(item, "modified_time", None),
-                    "owners": ",".join([u.email_address for u in (getattr(item, "owners", None) or []) if u and getattr(u, "email_address", None)]) if getattr(item, "owners", None) else None,
-                    "last_modifying_user": getattr(getattr(item, "last_modifying_user", None), "email_address", None),
-                    "web_view_link": getattr(item, "web_view_link", None),
-                    "web_content_link": getattr(item, "web_content_link", None),
-                    "shared": getattr(item, "shared", None),
-                    "trashed": getattr(item, "trashed", None),
-                })
+                all_items_by_id[item.id] = item
+                # Attach drive_id for later lookup
+                all_results.append((provider_config.name, item, getattr(item, "parents", ["root"])[0] if hasattr(item, "parents") and getattr(item, "parents", None) else "root", drive_id_to_name_local))
         except Exception as e:
             typer.echo(f"Error searching provider '{provider_config.name}': {e}")
+
+    def build_path(item):
+        # Reconstruct the path by walking up parents
+        path_parts = [item.name]
+        current = item
+        seen = set()
+        while getattr(current, "parents", None):
+            parent_ids = current.parents if isinstance(current.parents, list) else [current.parents]
+            parent_id = parent_ids[0] if parent_ids else None
+            if not parent_id or parent_id in seen or parent_id not in all_items_by_id:
+                break
+            seen.add(parent_id)
+            parent = all_items_by_id[parent_id]
+            path_parts.append(parent.name)
+            current = parent
+        return "/".join(reversed(path_parts))
+
+    results = []
+    for provider_name, item, parent_id, drive_map in all_results:
+        # Name regex filter
+        if name:
+            if not re.search(name, item.name or "", re.IGNORECASE):
+                continue
+        # Owner/contributor/reader email filter
+        if owner:
+            emails = set()
+            owners_list = getattr(item, "owners", None) or []
+            emails.update([u.email_address for u in owners_list if u and getattr(u, "email_address", None)])
+            last_mod_user = getattr(item, "last_modifying_user", None)
+            if last_mod_user and getattr(last_mod_user, "email_address", None):
+                emails.add(last_mod_user.email_address)
+            if owner not in emails:
+                continue
+        # Last update filter
+        if updated_after:
+            if not item.modified_time or datetime.fromisoformat(str(item.modified_time)) < datetime.fromisoformat(updated_after):
+                continue
+        if updated_before:
+            if not item.modified_time or datetime.fromisoformat(str(item.modified_time)) > datetime.fromisoformat(updated_before):
+                continue
+        # Created at filter
+        if created_after:
+            if not item.created_time or datetime.fromisoformat(str(item.created_time)) < datetime.fromisoformat(created_after):
+                continue
+        if created_before:
+            if not item.created_time or datetime.fromisoformat(str(item.created_time)) > datetime.fromisoformat(created_before):
+                continue
+        # Size filter (in KB)
+        if min_size is not None:
+            try:
+                if not item.size or int(item.size) < min_size * 1024:
+                    continue
+            except Exception:
+                continue
+        if max_size is not None:
+            try:
+                if not item.size or int(item.size) > max_size * 1024:
+                    continue
+            except Exception:
+                continue
+        # Find drive name
+        drive_name = drive_map.get(parent_id) or drive_id_to_name.get(parent_id) or drive_id_to_name.get("root") or "Unknown"
+        # Collect all possible params for export, including path, is_folder, and drive_name
+        results.append({
+            "provider": provider_name,
+            "id": getattr(item, "id", None),
+            "name": getattr(item, "name", None),
+            "path": build_path(item),
+            "is_folder": getattr(item, "mime_type", None) == "application/vnd.google-apps.folder",
+            "drive_name": drive_name,
+            "size": getattr(item, "size", None),
+            "mime_type": getattr(item, "mime_type", None),
+            "created_time": getattr(item, "created_time", None),
+            "modified_time": getattr(item, "modified_time", None),
+            "owners": ",".join([u.email_address for u in (getattr(item, "owners", None) or []) if u and getattr(u, "email_address", None)]) if getattr(item, "owners", None) else None,
+            "last_modifying_user": getattr(getattr(item, "last_modifying_user", None), "email_address", None),
+            "web_view_link": getattr(item, "web_view_link", None),
+            "web_content_link": getattr(item, "web_content_link", None),
+            "shared": getattr(item, "shared", None),
+            "trashed": getattr(item, "trashed", None),
+        })
     # Write results to CSV or JSON
     if results:
         fieldnames = [
-            "provider", "id", "name", "size", "mime_type", "created_time", "modified_time", "owners", "last_modifying_user", "web_view_link", "web_content_link", "shared", "trashed"
+            "provider", "id", "name", "path", "is_folder", "drive_name", "size", "mime_type", "created_time", "modified_time", "owners", "last_modifying_user", "web_view_link", "web_content_link", "shared", "trashed"
         ]
         if export_format.lower() == "json":
             with open("search_results.json", "w") as jsonfile:
