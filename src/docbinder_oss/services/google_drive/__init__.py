@@ -39,4 +39,3 @@ def get_service_display_name() -> str:
     This is used for user-friendly identification.
     """
     return "Google Drive Service"
-    return
