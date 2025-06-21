@@ -15,8 +15,8 @@ from docbinder_oss.services.base_class import ServiceConfig
 class MyProviderServiceConfig(ServiceConfig):
     type: str = "my_provider"
     name: str
-    api_key: str
     # Add any other provider-specific fields here
+    api_key: str
 ```
 
 - `type` must be unique and match the provider’s identifier.
@@ -94,8 +94,8 @@ Add your provider’s configuration to `~/.config/docbinder/config.yaml`:
 providers:
   - type: my_provider
     name: my_instance
-    api_key: <your-api-key>
     # Add other required fields
+    api_key: <your-api-key>
 ```
 
 ---
