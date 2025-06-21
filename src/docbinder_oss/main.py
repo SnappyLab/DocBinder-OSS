@@ -115,7 +115,8 @@ def get_provider(
             count += 1
         if provider.type == connection_type:
             typer.echo(
-                f"Provider '{provider.name}' of type '{connection_type}' found with config: {provider}"
+                f"Provider '{provider.name}' of type "
+                f"'{connection_type}' found with config: {provider}"
             )
             count += 1
     if count == 0:
