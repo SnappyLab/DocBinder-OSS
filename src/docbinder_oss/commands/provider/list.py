@@ -12,4 +12,4 @@ def list():
         raise typer.Exit(code=1)
 
     for provider in config.providers:
-        typer.echo(f"Provider: {provider.name}, Type: {provider.type}")
+        typer.echo(f"Provider: {provider.name}, type: {provider.type}")
