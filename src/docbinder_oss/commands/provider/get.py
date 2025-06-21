@@ -10,25 +10,26 @@ def get_provider(
         None, "--name", "-n", help="The name of the provider to get."
     ),
 ):
-    """Get connection information for a specific provider."""
+    """Get connection information for a provider by name or by type.
+    If both options are provided, it will search for providers matching either criterion."""
     from docbinder_oss.helpers.config import load_config
 
     config = load_config()
 
-    count = 0
+    provider_found = False
     if not config.providers:
         typer.echo("No providers configured.")
         raise typer.Exit(code=1)
     for provider in config.providers:
         if provider.name == name:
             typer.echo(f"Provider '{name}' found with config: {provider}")
-            count += 1
+            provider_found = True
         if provider.type == connection_type:
             typer.echo(
                 f"Provider '{provider.name}' of type '{connection_type}' found with config: {provider}"
             )
-            count += 1
-    if count == 0:
+            provider_found = True
+    if not provider_found:
         typer.echo(
             f"No providers found with name '{name}' or type '{connection_type}'."
         )
