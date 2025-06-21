@@ -1,0 +1,26 @@
+site_name: DocBinder OSS
+site_description: Documentation for DocBinder OSS
+site_author: DocBinder Team
+nav:
+  - Home:
+      - Welcome: index.md
+      - Getting Started: getting-started.md
+  - CLI Usage:
+      - Configuration: configuration.md
+      - Commands:
+          - Main CLI: commands/main.md
+          - Provider: commands/provider.md
+  - Contributing: CONTRIBUTING.md
+  - Code of Conduct: CODE_OF_CONDUCT.md
+  - Security: SECURITY.md
+  - License: LICENSE.md
+theme:
+  name: material
+  palette:
+    scheme: default
+  features:
+    - navigation.tabs
+    - navigation.top
+    - navigation.sections
+    - navigation.expand
+  logo: assets/images/logo.png
