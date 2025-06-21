@@ -32,6 +32,7 @@ Create a client class that inherits from [`BaseStorageClient`](src/docbinder_oss
 # filepath: src/docbinder_oss/services/my_provider/my_provider_client.py
 from typing import Optional, List
 from docbinder_oss.services.base_class import BaseStorageClient
+from docbinder_oss.core.schema import File, Permission
 from .my_provider_service_config import MyProviderServiceConfig
 
 class MyProviderClient(BaseStorageClient):
