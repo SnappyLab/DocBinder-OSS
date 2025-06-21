@@ -48,6 +48,16 @@ class BaseStorageClient(ABC):
         pass
 
     @abstractmethod
+    def list_all_files(self) -> List[File]:
+        """
+        Lists all files and folders in the storage service.
+
+        Returns:
+            A list of StorageItem objects representing all files and folders.
+        """
+        pass
+    
+    @abstractmethod
     def get_file_metadata(self, item_id: str) -> File:
         """
         Retrieves all available metadata for a specific file or folder.

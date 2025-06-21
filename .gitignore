@@ -77,3 +77,6 @@ ENV/
 # Credentials
 gcp_credentials.json
 *_token.json
+
+# Test files
+search_results.csv

@@ -1,21 +1,11 @@
-from typing import Annotated, List, Optional
-
 import typer
-import yaml
-
 from docbinder_oss.helpers.config import save_config, validate_config
-from docbinder_oss.services import create_provider_instance
 
 app = typer.Typer()
 
-# --- Provider Subcommand Group ---
-# We create a separate Typer app for the 'provider' command.
-# This allows us to nest commands like 'provider list' and 'provider get'.
-provider_app = typer.Typer(
-    help="Commands to manage providers. List them or get details for a specific one."
-)
-# We add this group to our main application.
-app.add_typer(provider_app, name="provider")
+from docbinder_oss.commands import search
+from docbinder_oss.commands import setup
+from docbinder_oss.commands.provider import list, get, test
 
 
 # This is the main entry point for the DocBinder CLI.

@@ -1,4 +1,5 @@
 import logging
+import os
 from typing import List, Optional
 
 from google.auth.transport.requests import Request
@@ -38,9 +39,13 @@ class GoogleDriveClient(BaseStorageClient):
         self.permissions = GoogleDrivePermissions(self.service)
 
     def _get_credentials(self):
+        TOKEN_PATH = os.path.expanduser("~/.config/docbinder/gcp/" + self.config.name + "_token.json")
+        # Ensure the directory exists
+        os.makedirs(os.path.dirname(TOKEN_PATH), exist_ok=True)
+
         try:
             creds = Credentials.from_authorized_user_file(
-                self.config.gcp_token_json, scopes=self.SCOPES
+                TOKEN_PATH, scopes=self.SCOPES
             )
         except (FileNotFoundError, ValueError):
             logger.warning("Credentials file not found or invalid, re-authenticating")
@@ -54,7 +59,7 @@ class GoogleDriveClient(BaseStorageClient):
                 )
                 creds = flow.run_local_server(port=0)
             # Save the credentials for the next run
-            with open(self.config.gcp_token_json, "w") as token:
+            with open(TOKEN_PATH, "w") as token:
                 token.write(creds.to_json())
         return creds
 
@@ -71,9 +76,33 @@ class GoogleDriveClient(BaseStorageClient):
 
     def list_files(self, folder_id: Optional[str] = None) -> List[File]:
         return self.files.list_files(folder_id)
+    
+    def list_all_files(self) -> List[File]:
+        """
+        Recursively list all files and folders in all buckets (drives).
+        Handles My Drive and Shared Drives correctly.
+        """
+        def _recursive_list(folder_id, is_drive_root=False):
+            items = self.files.list_files(folder_id, is_drive_root=is_drive_root)
+            all_items = []
+            for item in items:
+                all_items.append(item)
+                # Use mime_type to check if this is a folder
+                if getattr(item, "mime_type", None) == "application/vnd.google-apps.folder":
+                    all_items.extend(_recursive_list(item.id))
+            return all_items
+
+        buckets = self.list_buckets()
+        all_files = []
+        for bucket in buckets:
+            # If bucket.id == "root", it's My Drive; otherwise, it's a shared drive
+            is_drive_root = bucket.id != "root"
+            all_files.extend(_recursive_list(bucket.id, is_drive_root=is_drive_root))
+        return all_files
 
     def get_file_metadata(self, item_id: str) -> File:
         return self.files.get_file_metadata(item_id)
 
     def get_permissions(self, item_id: str) -> List[Permission]:
         return self.permissions.get_permissions(item_id)
+    
