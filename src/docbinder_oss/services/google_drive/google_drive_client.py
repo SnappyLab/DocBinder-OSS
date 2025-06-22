@@ -7,7 +7,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
 from docbinder_oss.core.schemas import Bucket, File, Permission
-from docbinder_oss.services.base_class import BaseStorageClient
+from docbinder_oss.services.base_class import BaseProvider
 from docbinder_oss.services.google_drive.google_drive_buckets import GoogleDriveBuckets
 from docbinder_oss.services.google_drive.google_drive_files import GoogleDriveFiles
 from docbinder_oss.services.google_drive.google_drive_permissions import (
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class GoogleDriveClient(BaseStorageClient):
+class GoogleDriveClient(BaseProvider):
     def __init__(self, config: GoogleDriveServiceConfig):
         super().__init__(config)
         logger.info("Initializing Google Drive client")
@@ -74,7 +74,7 @@ class GoogleDriveClient(BaseStorageClient):
     def list_files(self, folder_id: Optional[str] = None) -> List[File]:
         return self.files.list_files(folder_id)
 
-    def list_files_recursively(self, bucket: Bucket = None) -> List[File]:
+    def list_files_recursively(self, bucket: str = None) -> List[File]:
         """List all files and folders recursively in the specified bucket or root."""
         return self.files.list_files_recursively(bucket)
 

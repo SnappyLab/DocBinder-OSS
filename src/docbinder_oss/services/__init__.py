@@ -8,13 +8,13 @@ from pydantic import Field
 from rich.logging import RichHandler
 
 from docbinder_oss import services
-from docbinder_oss.services.base_class import BaseStorageClient, ServiceConfig
+from docbinder_oss.services.base_class import BaseProvider, ServiceConfig
 
 if not logging.getLogger().handlers:
     FORMAT = "%(message)s"
     logging.basicConfig(level="NOTSET", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()])
 
-logging.getLogger("googleapiclient").setLevel(logging.WARNING)
+logging.getLogger("services").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 _provider_registry = None  # Module-level cache
@@ -37,7 +37,7 @@ def get_provider_registry() -> dict:
     return _provider_registry
 
 
-def create_provider_instance(config: ServiceConfig) -> Optional["BaseStorageClient"]:
+def create_provider_instance(config: ServiceConfig) -> Optional["BaseProvider"]:
     """
     Factory function to create a provider instance from its config.
     """

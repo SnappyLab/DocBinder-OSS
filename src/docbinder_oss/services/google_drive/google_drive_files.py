@@ -10,7 +10,7 @@ REQUIRED_FIELDS = (
     "id,name,mimeType,kind,size,createdTime,modifiedTime,"
     "owners(permissionId,displayName,emailAddress,photoLink),"
     "lastModifyingUser(permissionId,displayName,emailAddress,photoLink),"
-    "webViewLink,iconLink,trashed,shared,starred"
+    "webViewLink,iconLink,trashed,shared,starred,parents"
 )
 
 
@@ -18,29 +18,33 @@ class GoogleDriveFiles:
     def __init__(self, service: Resource):
         self.service = service
 
-    def list_files(self, bucket: Bucket = None, is_drive_root: bool = False) -> list[File]:
+    def list_files(self, bucket: str = None, is_drive_root: bool = False) -> list[File]:
         args = {
             "includeItemsFromAllDrives": True,
             "supportsAllDrives": True,
-            "fields": f"files({REQUIRED_FIELDS})",
+            "fields": f"nextPageToken,files({REQUIRED_FIELDS})",
         }
-        folder_id = bucket.id if bucket else None
-        if is_drive_root:
-            if not folder_id:
-                raise ValueError("folder_id must be provided when is_drive_root is True")
+        logger.debug(f"{type(bucket)}: {bucket}")
+        bucket_id = bucket.id if hasattr(bucket, "id") else bucket
+
+        if is_drive_root and bucket_id != "root":
             args.update(
                 {
                     "corpora": "drive",
-                    "driveId": folder_id,
+                    "driveId": bucket_id,
                     "q": "'root' in parents and trashed=false",
                 }
             )
-        elif folder_id == "root" or folder_id is None:
-            args["q"] = "'root' in parents and trashed=false"
         else:
-            args["q"] = f"'{folder_id}' in parents and trashed=false"
-
+            parent_id = bucket_id
+            if parent_id == "root" or parent_id is None:
+                args["q"] = "'root' in parents and trashed=false"
+            else:
+                args["q"] = f"'{parent_id}' in parents and trashed=false"  
+        
         resp = self.service.files().list(**args).execute()
+        print(len(resp["files"]))
+        exit(1)
         return [
             File(
                 id=f.get("id"),
@@ -71,26 +75,25 @@ class GoogleDriveFiles:
                 shared=f.get("shared"),
                 starred=f.get("starred"),
                 is_folder=f.get("mimeType") == "application/vnd.google-apps.folder",
-                parents=folder_id if folder_id else None,
+                parents=bucket_id if bucket_id else None,
             )
             for f in resp.get("files")
         ]
 
-    def list_files_recursively(self, bucket: Bucket) -> list[File]:
+    def list_files_recursively(self, bucket: str) -> list[File]:
         """List all files in the Google Drive bucket."""
-        is_drive_root = bucket.id != "root"
+        is_drive_root = bucket != "root"
 
         def _recursive_list(folder_id: str):
             items: list[File] = self.list_files(folder_id, is_drive_root=is_drive_root)
             all_items = []
             for item in items:
                 all_items.append(item)
-                # Use mime_type to check if this is a folder
-                if item.mime_type == "application/vnd.google-apps.folder":
+                if item.is_folder:
                     all_items.extend(_recursive_list(item.id))
             return all_items
 
-        return _recursive_list(bucket.id)
+        return _recursive_list(bucket)
 
     def get_file_metadata(self, file_id: str):
         item_metadata = (
