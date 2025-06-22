@@ -35,6 +35,7 @@ def patch_provider(monkeypatch, tmp_path):
         providers = [DummyProviderConfig()]
 
     monkeypatch.setattr("docbinder_oss.helpers.config.load_config", lambda: DummyConfig())
+
     # Simulate a folder structure: root -> folder1 -> file1, file2; root -> file3
     def list_all_files(self):
         return [
@@ -49,7 +50,9 @@ def patch_provider(monkeypatch, tmp_path):
         def list_all_files(self):
             return list_all_files(self)
 
-    monkeypatch.setattr("docbinder_oss.services.create_provider_instance", lambda cfg: DummyClient())
+    monkeypatch.setattr(
+        "docbinder_oss.services.create_provider_instance", lambda cfg: DummyClient()
+    )
     orig_cwd = os.getcwd()
     os.chdir(tmp_path)
     yield

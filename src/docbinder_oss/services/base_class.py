@@ -56,7 +56,7 @@ class BaseStorageClient(ABC):
             A list of StorageItem objects representing all files and folders.
         """
         pass
-    
+
     @abstractmethod
     def get_file_metadata(self, item_id: str) -> File:
         """

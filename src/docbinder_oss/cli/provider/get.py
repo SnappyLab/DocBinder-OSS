@@ -1,8 +1,9 @@
-from docbinder_oss.commands.provider import provider_app
 import typer
 
+app = typer.Typer()
 
-@provider_app.command("get")
+
+@app.command("get")
 def get_provider(
     connection_type: str = typer.Option(
         None, "--type", "-t", help="The type of the provider to get."
@@ -25,7 +26,8 @@ def get_provider(
             provider_found = True
         if provider.type == connection_type:
             typer.echo(
-                f"Provider '{provider.name}' of type '{connection_type}' found with config: {provider}"
+                f"Provider '{provider.name}' of type '{connection_type}'"
+                f" found with config: {provider}"
             )
             provider_found = True
     if not provider_found:

@@ -2,7 +2,9 @@ import typer
 from typing import List, Optional
 import yaml
 from docbinder_oss.helpers.config import save_config, validate_config
-from docbinder_oss.main import app
+
+app = typer.Typer(help="DocBinder configuration setup commands.")
+
 
 @app.command()
 def setup(

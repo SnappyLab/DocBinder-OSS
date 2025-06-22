@@ -1,21 +1,38 @@
 import typer
 from typing import Optional
-from docbinder_oss.main import app
+
+app = typer.Typer()
+
 
 @app.command()
 def search(
     name: Optional[str] = typer.Option(None, "--name", help="Regex to match file name"),
-    owner: Optional[str] = typer.Option(None, "--owner", help="Owner/contributor/reader email address to filter"),
-    updated_after: Optional[str] = typer.Option(None, "--updated-after", help="Last update after (ISO timestamp)"),
-    updated_before: Optional[str] = typer.Option(None, "--updated-before", help="Last update before (ISO timestamp)"),
-    created_after: Optional[str] = typer.Option(None, "--created-after", help="Created after (ISO timestamp)"),
-    created_before: Optional[str] = typer.Option(None, "--created-before", help="Created before (ISO timestamp)"),
+    owner: Optional[str] = typer.Option(
+        None, "--owner", help="Owner/contributor/reader email address to filter"
+    ),
+    updated_after: Optional[str] = typer.Option(
+        None, "--updated-after", help="Last update after (ISO timestamp)"
+    ),
+    updated_before: Optional[str] = typer.Option(
+        None, "--updated-before", help="Last update before (ISO timestamp)"
+    ),
+    created_after: Optional[str] = typer.Option(
+        None, "--created-after", help="Created after (ISO timestamp)"
+    ),
+    created_before: Optional[str] = typer.Option(
+        None, "--created-before", help="Created before (ISO timestamp)"
+    ),
     min_size: Optional[int] = typer.Option(None, "--min-size", help="Minimum file size in KB"),
     max_size: Optional[int] = typer.Option(None, "--max-size", help="Maximum file size in KB"),
-    provider: Optional[str] = typer.Option(None, "--provider", "-p", help="Provider name to search in"),
-    export_format: str = typer.Option("csv", "--export-format", help="Export format: csv or json", show_default=True),
+    provider: Optional[str] = typer.Option(
+        None, "--provider", "-p", help="Provider name to search in"
+    ),
+    export_format: str = typer.Option(
+        "csv", "--export-format", help="Export format: csv or json", show_default=True
+    ),
 ):
-    """Search for files or folders matching filters across all providers and export results as CSV or JSON."""
+    """Search for files or folders matching filters across all
+    providers and export results as CSV or JSON."""
     import re
     import csv
     import json
@@ -53,7 +70,16 @@ def search(
             for item in files:
                 all_items_by_id[item.id] = item
                 # Attach drive_id for later lookup
-                all_results.append((provider_config.name, item, getattr(item, "parents", ["root"])[0] if hasattr(item, "parents") and getattr(item, "parents", None) else "root", drive_id_to_name_local))
+                all_results.append(
+                    (
+                        provider_config.name,
+                        item,
+                        getattr(item, "parents", ["root"])[0]
+                        if hasattr(item, "parents") and getattr(item, "parents", None)
+                        else "root",
+                        drive_id_to_name_local,
+                    )
+                )
         except Exception as e:
             typer.echo(f"Error searching provider '{provider_config.name}': {e}")
 
@@ -83,7 +109,9 @@ def search(
         if owner:
             emails = set()
             owners_list = getattr(item, "owners", None) or []
-            emails.update([u.email_address for u in owners_list if u and getattr(u, "email_address", None)])
+            emails.update(
+                [u.email_address for u in owners_list if u and getattr(u, "email_address", None)]
+            )
             last_mod_user = getattr(item, "last_modifying_user", None)
             if last_mod_user and getattr(last_mod_user, "email_address", None):
                 emails.add(last_mod_user.email_address)
@@ -91,17 +119,25 @@ def search(
                 continue
         # Last update filter
         if updated_after:
-            if not item.modified_time or datetime.fromisoformat(str(item.modified_time)) < datetime.fromisoformat(updated_after):
+            if not item.modified_time or datetime.fromisoformat(
+                str(item.modified_time)
+            ) < datetime.fromisoformat(updated_after):
                 continue
         if updated_before:
-            if not item.modified_time or datetime.fromisoformat(str(item.modified_time)) > datetime.fromisoformat(updated_before):
+            if not item.modified_time or datetime.fromisoformat(
+                str(item.modified_time)
+            ) > datetime.fromisoformat(updated_before):
                 continue
         # Created at filter
         if created_after:
-            if not item.created_time or datetime.fromisoformat(str(item.created_time)) < datetime.fromisoformat(created_after):
+            if not item.created_time or datetime.fromisoformat(
+                str(item.created_time)
+            ) < datetime.fromisoformat(created_after):
                 continue
         if created_before:
-            if not item.created_time or datetime.fromisoformat(str(item.created_time)) > datetime.fromisoformat(created_before):
+            if not item.created_time or datetime.fromisoformat(
+                str(item.created_time)
+            ) > datetime.fromisoformat(created_before):
                 continue
         # Size filter (in KB)
         if min_size is not None:
@@ -117,30 +153,63 @@ def search(
             except Exception:
                 continue
         # Find drive name
-        drive_name = drive_map.get(parent_id) or drive_id_to_name.get(parent_id) or drive_id_to_name.get("root") or "Unknown"
+        drive_name = (
+            drive_map.get(parent_id)
+            or drive_id_to_name.get(parent_id)
+            or drive_id_to_name.get("root")
+            or "Unknown"
+        )
         # Collect all possible params for export, including path, is_folder, and drive_name
-        results.append({
-            "provider": provider_name,
-            "id": getattr(item, "id", None),
-            "name": getattr(item, "name", None),
-            "path": build_path(item),
-            "is_folder": getattr(item, "mime_type", None) == "application/vnd.google-apps.folder",
-            "drive_name": drive_name,
-            "size": getattr(item, "size", None),
-            "mime_type": getattr(item, "mime_type", None),
-            "created_time": getattr(item, "created_time", None),
-            "modified_time": getattr(item, "modified_time", None),
-            "owners": ",".join([u.email_address for u in (getattr(item, "owners", None) or []) if u and getattr(u, "email_address", None)]) if getattr(item, "owners", None) else None,
-            "last_modifying_user": getattr(getattr(item, "last_modifying_user", None), "email_address", None),
-            "web_view_link": getattr(item, "web_view_link", None),
-            "web_content_link": getattr(item, "web_content_link", None),
-            "shared": getattr(item, "shared", None),
-            "trashed": getattr(item, "trashed", None),
-        })
+        results.append(
+            {
+                "provider": provider_name,
+                "id": getattr(item, "id", None),
+                "name": getattr(item, "name", None),
+                "path": build_path(item),
+                "is_folder": getattr(item, "mime_type", None)
+                == "application/vnd.google-apps.folder",
+                "drive_name": drive_name,
+                "size": getattr(item, "size", None),
+                "mime_type": getattr(item, "mime_type", None),
+                "created_time": getattr(item, "created_time", None),
+                "modified_time": getattr(item, "modified_time", None),
+                "owners": ",".join(
+                    [
+                        u.email_address
+                        for u in (getattr(item, "owners", None) or [])
+                        if u and getattr(u, "email_address", None)
+                    ]
+                )
+                if getattr(item, "owners", None)
+                else None,
+                "last_modifying_user": getattr(
+                    getattr(item, "last_modifying_user", None), "email_address", None
+                ),
+                "web_view_link": getattr(item, "web_view_link", None),
+                "web_content_link": getattr(item, "web_content_link", None),
+                "shared": getattr(item, "shared", None),
+                "trashed": getattr(item, "trashed", None),
+            }
+        )
     # Write results to CSV or JSON
     if results:
         fieldnames = [
-            "provider", "id", "name", "path", "is_folder", "drive_name", "size", "mime_type", "created_time", "modified_time", "owners", "last_modifying_user", "web_view_link", "web_content_link", "shared", "trashed"
+            "provider",
+            "id",
+            "name",
+            "path",
+            "is_folder",
+            "drive_name",
+            "size",
+            "mime_type",
+            "created_time",
+            "modified_time",
+            "owners",
+            "last_modifying_user",
+            "web_view_link",
+            "web_content_link",
+            "shared",
+            "trashed",
         ]
         if export_format.lower() == "json":
             with open("search_results.json", "w") as jsonfile:
