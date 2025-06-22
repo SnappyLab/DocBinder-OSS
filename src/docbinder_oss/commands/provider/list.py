@@ -1,6 +1,7 @@
 from docbinder_oss.commands.provider import provider_app
 import typer
 
+
 @provider_app.command()
 def list():
     """List all configured providers."""
