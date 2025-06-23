@@ -18,7 +18,7 @@ class GoogleDrivePermissions:
         Returns:
             User object containing the user's details.
         """
-        resp = self.service.about().get(fields="user").execute()
+        resp = self.service.about().get(fields="user").execute()  # type: ignore[attr-defined]
         user_info = resp.get("user", {})
 
         return User(
@@ -31,7 +31,7 @@ class GoogleDrivePermissions:
         )
 
     def get_permissions(self, item_id: str):
-        resp = self.service.permissions().list(fileId=item_id, fields="permissions").execute()
+        resp = self.service.permissions().list(fileId=item_id, fields="permissions").execute()  # type: ignore[attr-defined]
 
         return [
             Permission(

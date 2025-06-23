@@ -25,7 +25,7 @@ class GoogleDriveBuckets:
         ]  # Default root drive
 
         resp = (
-            self.service.drives()
+            self.service.drives()  # type: ignore[attr-defined]
             .list(fields="drives(id,name,kind,createdTime,hidden,restrictions)")
             .execute()
         )

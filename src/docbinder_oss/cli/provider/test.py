@@ -30,7 +30,7 @@ def test(
     if found_provider_config:
         typer.echo(f"Testing connection for provider '{name}'...")
         try:
-            client = create_provider_instance(provider_config)
+            client = create_provider_instance(found_provider_config)
             if client is None:
                 typer.echo(f"Provider '{name}' is not supported or not implemented.")
                 raise typer.Exit(code=1)
