@@ -6,7 +6,12 @@ from docbinder_oss.core.schemas import File, User
 
 logger = logging.getLogger(__name__)
 
-REQUIRED_FIELDS = "id,name,mimeType,kind,size,createdTime,modifiedTime,owners(permissionId,displayName,emailAddress,photoLink),lastModifyingUser(permissionId,displayName,emailAddress,photoLink),webViewLink,iconLink,trashed,shared,starred"
+REQUIRED_FIELDS = (
+    "id,name,mimeType,kind,size,createdTime,modifiedTime,"
+    "owners(permissionId,displayName,emailAddress,photoLink),"
+    "lastModifyingUser(permissionId,displayName,emailAddress,photoLink),"
+    "webViewLink,iconLink,trashed,shared,starred"
+)
 
 
 class GoogleDriveFiles:
