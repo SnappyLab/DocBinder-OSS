@@ -13,9 +13,7 @@ class Bucket(BaseModel):
     id: str
     name: str
     kind: Optional[str] = Field(description="Type of the bucket, e.g., 'drive#file'")
-    created_time: Optional[datetime] = Field(
-        description="Timestamp when the bucket was created."
-    )
+    created_time: Optional[datetime] = Field(description="Timestamp when the bucket was created.")
     viewable: Optional[bool]
     restrictions: Optional[Dict[str, Any]]
 
@@ -48,9 +46,7 @@ class File(BaseModel):
     mime_type: str
     kind: Optional[str]
 
-    is_folder: bool = Field(
-        False, description="True if the item is a folder, False otherwise."
-    )
+    is_folder: bool = Field(False, description="True if the item is a folder, False otherwise.")
 
     web_view_link: Optional[HttpUrl]
     icon_link: Optional[HttpUrl]
@@ -61,9 +57,7 @@ class File(BaseModel):
     owners: Optional[List[User]]
     last_modifying_user: Optional[User]
 
-    size: Optional[str] = Field(
-        description="Size in bytes, as a string. Only populated for files."
-    )
+    size: Optional[str] = Field(description="Size in bytes, as a string. Only populated for files.")
     parents: Optional[str] = Field(description="Parent folder ID, if applicable.")
 
     capabilities: Optional[FileCapabilities] = None

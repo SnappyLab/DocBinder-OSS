@@ -31,11 +31,7 @@ class GoogleDrivePermissions:
         )
 
     def get_permissions(self, item_id: str):
-        resp = (
-            self.service.permissions()
-            .list(fileId=item_id, fields="permissions")
-            .execute()
-        )
+        resp = self.service.permissions().list(fileId=item_id, fields="permissions").execute()
 
         return [
             Permission(

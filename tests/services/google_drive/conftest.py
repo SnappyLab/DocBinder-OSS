@@ -19,9 +19,7 @@ def mock_gdrive_service():
     Whenever `GoogleDriveClient` calls `build('drive', 'v3', ...)`, it will
     receive our mock object instead of making a real network call.
     """
-    with patch(
-        "docbinder_oss.services.google_drive.google_drive_client.build"
-    ) as mock_build:
+    with patch("docbinder_oss.services.google_drive.google_drive_client.build") as mock_build:
         # Create a mock for the service object that `build` would return
         mock_service = MagicMock()
         # Configure the `build` function to return our mock service

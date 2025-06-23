@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from docbinder_oss.core.schemas import File, Permission
+from docbinder_oss.core.schemas import Bucket, File, Permission
 
 
 class ServiceConfig(BaseModel):
@@ -13,7 +13,7 @@ class ServiceConfig(BaseModel):
     name: str
 
 
-class BaseStorageClient(ABC):
+class BaseProvider(ABC):
     """
     Abstract base class for a client that interacts with a cloud storage service.
     Defines a standard interface for listing items and retrieving metadata.
@@ -30,6 +30,16 @@ class BaseStorageClient(ABC):
 
         Returns:
             True if the connection is successful, False otherwise.
+        """
+        pass
+    
+    @abstractmethod
+    def list_buckets(self) -> List[Bucket]:
+        """
+        Lists all available buckets in the storage service.
+
+        Returns:
+            A list of bucket names.
         """
         pass
 
@@ -56,7 +66,7 @@ class BaseStorageClient(ABC):
             A list of StorageItem objects representing all files and folders.
         """
         pass
-    
+
     @abstractmethod
     def get_file_metadata(self, item_id: str) -> File:
         """

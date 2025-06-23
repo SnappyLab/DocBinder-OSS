@@ -1,14 +1,14 @@
-from docbinder_oss.commands.provider import provider_app
 import typer
 
-@provider_app.command("get")
+app = typer.Typer()
+
+
+@app.command("get")
 def get_provider(
     connection_type: str = typer.Option(
         None, "--type", "-t", help="The type of the provider to get."
     ),
-    name: str = typer.Option(
-        None, "--name", "-n", help="The name of the provider to get."
-    ),
+    name: str = typer.Option(None, "--name", "-n", help="The name of the provider to get."),
 ):
     """Get connection information for a provider by name or by type.
     If both options are provided, it will search for providers matching either criterion."""
@@ -26,11 +26,10 @@ def get_provider(
             provider_found = True
         if provider.type == connection_type:
             typer.echo(
-                f"Provider '{provider.name}' of type '{connection_type}' found with config: {provider}"
+                f"Provider '{provider.name}' of type '{connection_type}'"
+                f" found with config: {provider}"
             )
             provider_found = True
     if not provider_found:
-        typer.echo(
-            f"No providers found with name '{name}' or type '{connection_type}'."
-        )
+        typer.echo(f"No providers found with name '{name}' or type '{connection_type}'.")
         raise typer.Exit(code=1)

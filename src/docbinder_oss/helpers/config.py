@@ -21,9 +21,7 @@ class Config(BaseModel):
 
 def load_config() -> Config:
     if not os.path.exists(CONFIG_PATH):
-        typer.echo(
-            f"Config file not found at {CONFIG_PATH}. Please run 'docbinder setup' first."
-        )
+        typer.echo(f"Config file not found at {CONFIG_PATH}. Please run 'docbinder setup' first.")
         raise typer.Exit(code=1)
     with open(CONFIG_PATH, "r") as f:
         config_data = yaml.safe_load(f)
@@ -33,9 +31,7 @@ def load_config() -> Config:
         if config.get("type") not in provider_registry:
             typer.echo(f"Unknown provider type: {config['type']}")
             raise typer.Exit(code=1)
-        config_to_add.append(
-            provider_registry[config["type"]]["config_class"](**config)
-        )
+        config_to_add.append(provider_registry[config["type"]]["config_class"](**config))
     try:
         configss = Config(providers=config_to_add)
         return configss

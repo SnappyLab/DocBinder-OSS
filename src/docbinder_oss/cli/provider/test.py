@@ -1,16 +1,17 @@
-from docbinder_oss.commands.provider import provider_app
 import typer
 from typing import Annotated
 
+app = typer.Typer()
 
-@provider_app.command("test")
+
+@app.command("test")
 def test(
     name: Annotated[str, typer.Argument(help="The name of the provider to test the connection.")],
 ):
     """Test the connection to a specific provider."""
     from docbinder_oss.helpers.config import load_config
     from docbinder_oss.services import create_provider_instance
-    
+
     if not name:
         typer.echo("Provider name is required.")
         raise typer.Exit(code=1)
@@ -24,8 +25,8 @@ def test(
     for provider_config in config.providers:
         if provider_config.name == name:
             found_provider_config = provider_config
-            break # Exit the loop once the provider is found
-    
+            break  # Exit the loop once the provider is found
+
     if found_provider_config:
         typer.echo(f"Testing connection for provider '{name}'...")
         try:
@@ -39,7 +40,7 @@ def test(
         except Exception as e:
             typer.echo(f"Failed to connect to provider '{name}': {e}")
         return
-    
+
     # If we reach here, the provider was not found
     typer.echo(f"Provider '{name}' not found in configuration.")
     raise typer.Exit(code=1)
