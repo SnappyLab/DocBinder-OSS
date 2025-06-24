@@ -6,11 +6,12 @@ from typing import Optional
 import csv
 import json
 
+from docbinder_oss.core.schemas import File
 from docbinder_oss.helpers.config import load_config
-from docbinder_oss.services import create_provider_instance
+from docbinder_oss.providers import create_provider_instance
 from docbinder_oss.helpers.config import Config
 from docbinder_oss.helpers.rich_helpers import create_rich_table
-from docbinder_oss.services.base_class import BaseProvider
+from docbinder_oss.providers.base_class import BaseProvider
 from docbinder_oss.helpers.path_utils import build_id_to_item, get_full_path, build_all_full_paths
 
 app = typer.Typer()
@@ -65,8 +66,6 @@ def search(
             raise typer.Exit(code=1)
         current_files[provider_config.name] = client.list_all_files()
     
-    rich_print(current_files["my_google_drive"])
-    
     current_files = filter_files(
         current_files,
         name=name,
@@ -78,14 +77,11 @@ def search(
         min_size=min_size,
         max_size=max_size,
     )
-    rich_print(current_files["my_google_drive"])
+    
     if not export_format:
-        table = create_rich_table(
-            headers=["Provider", "Name", "ID", "Size", "Created Time", "Modified Time"],
-            rows=current_files
-        )
-        rich_print(table)
+        typer.echo(current_files)
         return
+    
     elif export_format.lower() == "csv":
         __write_csv(filtered_files_by_provider, "search_results.csv")
         typer.echo("Results written to search_results.csv")
@@ -107,26 +103,46 @@ def filter_files(
     min_size=None,
     max_size=None,
 ):
-    results = []
-    for file in files:
+    """
+    Filters a collection of files based on various criteria such as name, owner, modification/creation dates, and file size.
+
+    Args:
+        files (dict): A dictionary where keys are providers and values are lists of file objects.
+        name (str, optional): A regex pattern to match file names (case-insensitive).
+        owner (str, optional): An email address to match file owners.
+        updated_after (str, optional): ISO format datetime string; only include files modified after this date.
+        updated_before (str, optional): ISO format datetime string; only include files modified before this date.
+        created_after (str, optional): ISO format datetime string; only include files created after this date.
+        created_before (str, optional): ISO format datetime string; only include files created before this date.
+        min_size (int, optional): Minimum file size in kilobytes (KB).
+        max_size (int, optional): Maximum file size in kilobytes (KB).
+
+    Returns:
+        list: A list of file objects that match the specified filters.
+    """
+    def file_matches(file: File):
         if name and not re.search(name, file.name, re.IGNORECASE):
-            continue
+            return False
         if owner and not any(owner in u.email_address for u in file.owners):
-            continue
+            return False
         if updated_after and __parse_dt(file.modified_time) < __parse_dt(updated_after):
-            continue
+            return False
         if updated_before and __parse_dt(file.modified_time) > __parse_dt(updated_before):
-            continue
+            return False
         if created_after and __parse_dt(file.created_time) < __parse_dt(created_after):
-            continue
+            return False
         if created_before and __parse_dt(file.created_time) > __parse_dt(created_before):
-            continue
+            return False
         if min_size and file.size < min_size * 1024:
-            continue
+            return False
         if max_size and file.size > max_size * 1024:
-            continue
-        results.append(file)
-    return results
+            return False
+        return True
+
+    filtered = {}
+    for provider, file_list in files.items():
+        filtered[provider] = [file for file in file_list if file_matches(file)]
+    return filtered
 
 def __parse_dt(val):
     if isinstance(val, datetime):

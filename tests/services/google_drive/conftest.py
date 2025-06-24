@@ -2,10 +2,10 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from docbinder_oss.services.google_drive.google_drive_client import (
+from docbinder_oss.providers.google_drive.google_drive_client import (
     GoogleDriveClient,
 )
-from docbinder_oss.services.google_drive.google_drive_service_config import (
+from docbinder_oss.providers.google_drive.google_drive_service_config import (
     GoogleDriveServiceConfig,
 )
 

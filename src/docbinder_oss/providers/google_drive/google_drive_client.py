@@ -8,12 +8,13 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
 from docbinder_oss.core.schemas import Bucket, File, Permission
-from docbinder_oss.services.base_class import BaseProvider
-from docbinder_oss.services.google_drive.google_drive_buckets import GoogleDriveBuckets
-from docbinder_oss.services.google_drive.google_drive_files import GoogleDriveFiles
-from docbinder_oss.services.google_drive.google_drive_permissions import (
+from docbinder_oss.providers.base_class import BaseProvider
+from docbinder_oss.providers.google_drive.google_drive_buckets import GoogleDriveBuckets
+from docbinder_oss.providers.google_drive.google_drive_files import GoogleDriveFiles
+from docbinder_oss.providers.google_drive.google_drive_permissions import (
     GoogleDrivePermissions,
 )
+from docbinder_oss.providers.google_drive.google_drive_service_config import GoogleDriveServiceConfig
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -28,8 +29,8 @@ class GoogleDriveClient(BaseProvider):
             "https://www.googleapis.com/auth/drive.metadata.readonly",
             "https://www.googleapis.com/auth/drive.activity.readonly",
         ]
-        self.settings = Settings()
-        self.creds = credentials or self._get_credentials()
+        self.settings = config
+        self.creds = self._get_credentials()
         self.service = build("drive", "v3", credentials=self.creds)
         self.buckets = GoogleDriveBuckets(self.service)
         self.files = GoogleDriveFiles(self.service)
@@ -77,22 +78,9 @@ class GoogleDriveClient(BaseProvider):
     def list_files_in_folder(self, folder_id: Optional[str] = None) -> List[File]:
         return self.files.list_files_in_folder(folder_id)
 
-    def list_files_recursively(self, bucket_id: str | None = None) -> List[File]:
-        """List all files and folders recursively in the specified bucket or root."""
-        if bucket_id is None:
-            bucket_id = "root"
-        logger.info(f"Listing files recursively in bucket: {bucket_id}")
-        return self.files.list_files_recursively(bucket_id)
-
-    def list_all_files(self) -> List[File]:
-        files = []
-        buckets = self.buckets.list_buckets()
-        for bucket in buckets:
-            files.extend(self.files.list_files(bucket))
-        return files
-        buckets = self.buckets.list_buckets()            
-        return self.files.list_all_files(buckets)
-
+    def list_all_files(self) -> List[File]:        
+        return self.files.list_files_in_folder()
+        
     def get_file_metadata(self, item_id: str) -> File:
         return self.files.get_file_metadata(item_id)
 
