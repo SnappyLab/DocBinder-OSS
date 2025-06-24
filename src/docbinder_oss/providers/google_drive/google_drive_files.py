@@ -21,6 +21,7 @@ class GoogleDriveFiles:
     def list_files_in_folder(self, bucket_id: str | None = None) -> list[File]:
         args = {
             "fields": f"nextPageToken,files({REQUIRED_FIELDS})",
+            "pageSize": 1000,
         }
         
         if bucket_id:
