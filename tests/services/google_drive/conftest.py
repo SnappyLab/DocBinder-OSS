@@ -2,10 +2,10 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from docbinder_oss.services.google_drive.google_drive_client import (
+from docbinder_oss.providers.google_drive.google_drive_client import (
     GoogleDriveClient,
 )
-from docbinder_oss.services.google_drive.google_drive_service_config import (
+from docbinder_oss.providers.google_drive.google_drive_service_config import (
     GoogleDriveServiceConfig,
 )
 
@@ -19,9 +19,7 @@ def mock_gdrive_service():
     Whenever `GoogleDriveClient` calls `build('drive', 'v3', ...)`, it will
     receive our mock object instead of making a real network call.
     """
-    with patch(
-        "docbinder_oss.services.google_drive.google_drive_client.build"
-    ) as mock_build:
+    with patch("docbinder_oss.services.google_drive.google_drive_client.build") as mock_build:
         # Create a mock for the service object that `build` would return
         mock_service = MagicMock()
         # Configure the `build` function to return our mock service
@@ -44,6 +42,5 @@ def gdrive_client(mock_gdrive_service):
         config = GoogleDriveServiceConfig(
             name="test_gdrive",
             gcp_credentials_json="fake_creds.json",
-            gcp_token_json="fake_token.json",
         )
         return GoogleDriveClient(config=config)

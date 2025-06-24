@@ -13,9 +13,7 @@ class Bucket(BaseModel):
     id: str
     name: str
     kind: Optional[str] = Field(description="Type of the bucket, e.g., 'drive#file'")
-    created_time: Optional[datetime] = Field(
-        description="Timestamp when the bucket was created."
-    )
+    created_time: Optional[datetime] = Field(description="Timestamp when the bucket was created.")
     viewable: Optional[bool]
     restrictions: Optional[Dict[str, Any]]
 
@@ -48,9 +46,7 @@ class File(BaseModel):
     mime_type: str
     kind: Optional[str]
 
-    is_folder: bool = Field(
-        False, description="True if the item is a folder, False otherwise."
-    )
+    is_folder: bool = Field(False, description="True if the item is a folder, False otherwise.")
 
     web_view_link: Optional[HttpUrl]
     icon_link: Optional[HttpUrl]
@@ -61,10 +57,8 @@ class File(BaseModel):
     owners: Optional[List[User]]
     last_modifying_user: Optional[User]
 
-    size: Optional[str] = Field(
-        description="Size in bytes, as a string. Only populated for files."
-    )
-    parents: Optional[str] = Field(description="Parent folder ID, if applicable.")
+    size: Optional[str] = Field(description="Size in bytes, as a string. Only populated for files.")
+    parents: Optional[List[str]] = Field(description="Parent folder IDs, if applicable.")
 
     capabilities: Optional[FileCapabilities] = None
 
@@ -72,8 +66,23 @@ class File(BaseModel):
     starred: Optional[bool]
     trashed: Optional[bool]
 
-    # If you want a more robust way to set is_folder after initialization:
+    # Add full_path as an optional field for export/CLI assignment
+    full_path: Optional[str] = Field(
+        default=None, description="Full path of the file/folder, computed at runtime."
+    )
+
     def __init__(self, **data: Any):
+        # Coerce parents to a list of strings or None
+        if "parents" in data:
+            if data["parents"] is None:
+                data["parents"] = None
+            elif isinstance(data["parents"], str):
+                data["parents"] = [data["parents"]]
+            elif isinstance(data["parents"], list):
+                # Ensure all elements are strings
+                data["parents"] = [str(p) for p in data["parents"] if p is not None]
+            else:
+                data["parents"] = [str(data["parents"])]
         super().__init__(**data)
         if self.mime_type == "application/vnd.google-apps.folder":
             self.is_folder = True

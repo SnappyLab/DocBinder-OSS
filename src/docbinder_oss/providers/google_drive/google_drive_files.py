@@ -10,7 +10,7 @@ REQUIRED_FIELDS = (
     "id,name,mimeType,kind,size,createdTime,modifiedTime,"
     "owners(permissionId,displayName,emailAddress,photoLink),"
     "lastModifyingUser(permissionId,displayName,emailAddress,photoLink),"
-    "webViewLink,iconLink,trashed,shared,starred"
+    "webViewLink,iconLink,trashed,shared,starred,parents"
 )
 
 
@@ -18,34 +18,26 @@ class GoogleDriveFiles:
     def __init__(self, service: Resource):
         self.service = service
 
-    def list_files(self, folder_id=None):
-        if folder_id and len(folder_id.split("|", 1)) > 1:
-            logger.warning("Folder ID should not contain '|' character")
-            _, folder_id = folder_id.split("|", 1)
+    def list_files_in_folder(self, bucket_id: str | None = None) -> list[File]:
+        args = {
+            "fields": f"nextPageToken,files({REQUIRED_FIELDS})",
+            "pageSize": 1000,
+        }
 
-        if folder_id == "root":
-            query = "'root' in parents and trashed=false"
-            resp = (
-                self.service.files()
-                .list(
-                    q=query,
-                    fields=f"files({REQUIRED_FIELDS})",
-                )
-                .execute()
-            )
+        if bucket_id:
+            args["q"] = f"'{bucket_id}' in parents and trashed=false"
         else:
-            resp = (
-                self.service.files()
-                .list(
-                    corpora="drive",
-                    q=f"'{folder_id}' in parents and trashed=false",
-                    driveId=folder_id,
-                    includeItemsFromAllDrives=True,
-                    supportsAllDrives=True,
-                    fields=f"files({REQUIRED_FIELDS})",
-                )
-                .execute()
-            )
+            args["q"] = "sharedWithMe=true and trashed=false"
+
+        resp = self.service.files().list(**args).execute()
+        files = resp.get("files", [])
+        next_page_token = resp.get("nextPageToken")
+
+        while next_page_token:
+            logger.debug("Getting next page...")
+            current_page = self.service.files().list(**args, pageToken=next_page_token).execute()
+            files.extend(current_page.get("files", []))
+            next_page_token = current_page.get("nextPageToken")
 
         return [
             File(
@@ -77,14 +69,14 @@ class GoogleDriveFiles:
                 shared=f.get("shared"),
                 starred=f.get("starred"),
                 is_folder=f.get("mimeType") == "application/vnd.google-apps.folder",
-                parents=folder_id if folder_id else None,
+                parents=f.get("parents") if isinstance(f.get("parents"), list) else None,
             )
-            for f in resp.get("files")
+            for f in files
         ]
 
     def get_file_metadata(self, file_id: str):
         item_metadata = (
-            self.service.files()
+            self.service.files()  # type: ignore[attr-defined]
             .get(
                 fileId=file_id,
                 fields=f"{REQUIRED_FIELDS}",
@@ -110,12 +102,8 @@ class GoogleDriveFiles:
                 for owner in item_metadata.get("owners")
             ],
             last_modifying_user=User(
-                display_name=item_metadata.get("lastModifyingUser", {}).get(
-                    "displayName"
-                ),
-                email_address=item_metadata.get("lastModifyingUser", {}).get(
-                    "emailAddress"
-                ),
+                display_name=item_metadata.get("lastModifyingUser", {}).get("displayName"),
+                email_address=item_metadata.get("lastModifyingUser", {}).get("emailAddress"),
                 photo_link=item_metadata.get("lastModifyingUser", {}).get("photoLink"),
                 kind=item_metadata.get("lastModifyingUser", {}).get("kind"),
             ),
@@ -124,7 +112,6 @@ class GoogleDriveFiles:
             trashed=item_metadata.get("trashed"),
             shared=item_metadata.get("shared"),
             starred=item_metadata.get("starred"),
-            is_folder=item_metadata.get("mimeType")
-            == "application/vnd.google-apps.folder",
+            is_folder=item_metadata.get("mimeType") == "application/vnd.google-apps.folder",
             parents=None,  # This field is not populated by the API, so we set it to None for files.
         )
