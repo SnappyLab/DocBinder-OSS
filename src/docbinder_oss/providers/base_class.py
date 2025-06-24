@@ -32,7 +32,7 @@ class BaseProvider(ABC):
             True if the connection is successful, False otherwise.
         """
         pass
-    
+
     @abstractmethod
     def list_buckets(self) -> List[Bucket]:
         """

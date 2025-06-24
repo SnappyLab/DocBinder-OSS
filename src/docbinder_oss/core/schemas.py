@@ -67,20 +67,22 @@ class File(BaseModel):
     trashed: Optional[bool]
 
     # Add full_path as an optional field for export/CLI assignment
-    full_path: Optional[str] = Field(default=None, description="Full path of the file/folder, computed at runtime.")
+    full_path: Optional[str] = Field(
+        default=None, description="Full path of the file/folder, computed at runtime."
+    )
 
     def __init__(self, **data: Any):
         # Coerce parents to a list of strings or None
-        if 'parents' in data:
-            if data['parents'] is None:
-                data['parents'] = None
-            elif isinstance(data['parents'], str):
-                data['parents'] = [data['parents']]
-            elif isinstance(data['parents'], list):
+        if "parents" in data:
+            if data["parents"] is None:
+                data["parents"] = None
+            elif isinstance(data["parents"], str):
+                data["parents"] = [data["parents"]]
+            elif isinstance(data["parents"], list):
                 # Ensure all elements are strings
-                data['parents'] = [str(p) for p in data['parents'] if p is not None]
+                data["parents"] = [str(p) for p in data["parents"] if p is not None]
             else:
-                data['parents'] = [str(data['parents'])]
+                data["parents"] = [str(data["parents"])]
         super().__init__(**data)
         if self.mime_type == "application/vnd.google-apps.folder":
             self.is_folder = True

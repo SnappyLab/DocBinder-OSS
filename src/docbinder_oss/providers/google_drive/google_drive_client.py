@@ -14,7 +14,9 @@ from docbinder_oss.providers.google_drive.google_drive_files import GoogleDriveF
 from docbinder_oss.providers.google_drive.google_drive_permissions import (
     GoogleDrivePermissions,
 )
-from docbinder_oss.providers.google_drive.google_drive_service_config import GoogleDriveServiceConfig
+from docbinder_oss.providers.google_drive.google_drive_service_config import (
+    GoogleDriveServiceConfig,
+)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -39,15 +41,15 @@ class GoogleDriveClient(BaseProvider):
     def _get_credentials(self):
         logger.info("Getting credentials for Google Drive client")
 
-        TOKEN_PATH = os.path.expanduser("~/.config/docbinder/gcp/" + self.config.name + "_token.json")
+        TOKEN_PATH = os.path.expanduser(
+            "~/.config/docbinder/gcp/" + self.config.name + "_token.json"
+        )
         # Ensure the directory exists
         os.makedirs(os.path.dirname(TOKEN_PATH), exist_ok=True)
         logger.debug(f"Token path: {TOKEN_PATH}")
 
         try:
-            creds = Credentials.from_authorized_user_file(
-                TOKEN_PATH, scopes=self.SCOPES
-            )
+            creds = Credentials.from_authorized_user_file(TOKEN_PATH, scopes=self.SCOPES)
         except (FileNotFoundError, ValueError):
             logger.warning("Credentials file not found or invalid, re-authenticating")
             creds = None
@@ -78,9 +80,9 @@ class GoogleDriveClient(BaseProvider):
     def list_files_in_folder(self, folder_id: Optional[str] = None) -> List[File]:
         return self.files.list_files_in_folder(folder_id)
 
-    def list_all_files(self) -> List[File]:        
+    def list_all_files(self) -> List[File]:
         return self.files.list_files_in_folder()
-        
+
     def get_file_metadata(self, item_id: str) -> File:
         return self.files.get_file_metadata(item_id)
 

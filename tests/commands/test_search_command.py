@@ -4,8 +4,6 @@ import json
 import pytest
 from typer.testing import CliRunner
 from docbinder_oss.main import app
-import sys
-import importlib
 
 
 class DummyFile:
@@ -96,7 +94,9 @@ def patch_provider(monkeypatch, tmp_path):
                 },
             )()
 
-    monkeypatch.setattr("docbinder_oss.cli.search.create_provider_instance", create_provider_instance)
+    monkeypatch.setattr(
+        "docbinder_oss.cli.search.create_provider_instance", create_provider_instance
+    )
 
     # Change working directory to a temp dir for file output
     orig_cwd = os.getcwd()

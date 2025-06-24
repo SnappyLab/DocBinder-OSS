@@ -1,12 +1,11 @@
 import logging
 import os
-from typing import List
 
 import typer
 import yaml
 from pydantic import BaseModel, ValidationError
 
-from docbinder_oss.providers import ServiceUnion, get_provider_registry
+from docbinder_oss.providers import get_provider_registry
 
 logger = logging.getLogger(__name__)
 

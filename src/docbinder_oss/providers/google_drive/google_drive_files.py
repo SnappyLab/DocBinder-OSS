@@ -2,7 +2,7 @@ import logging
 
 from googleapiclient.discovery import Resource
 
-from docbinder_oss.core.schemas import Bucket, File, User
+from docbinder_oss.core.schemas import File, User
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ class GoogleDriveFiles:
             "fields": f"nextPageToken,files({REQUIRED_FIELDS})",
             "pageSize": 1000,
         }
-        
+
         if bucket_id:
             args["q"] = f"'{bucket_id}' in parents and trashed=false"
         else:
@@ -38,7 +38,7 @@ class GoogleDriveFiles:
             current_page = self.service.files().list(**args, pageToken=next_page_token).execute()
             files.extend(current_page.get("files", []))
             next_page_token = current_page.get("nextPageToken")
-        
+
         return [
             File(
                 id=f.get("id"),
