@@ -16,7 +16,7 @@ CONFIG_PATH = os.path.expanduser("~/.config/docbinder/config.yaml")
 class Config(BaseModel):
     """Main configuration model that holds a list of all provider configs."""
 
-    providers: List[ServiceUnion]
+    providers: list
 
 
 def load_config() -> Config:

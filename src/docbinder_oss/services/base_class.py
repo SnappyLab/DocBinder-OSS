@@ -44,7 +44,7 @@ class BaseProvider(ABC):
         pass
 
     @abstractmethod
-    def list_files(self, folder_id: Optional[str] = None) -> List[File]:
+    def list_files_in_folder(self, folder_id: Optional[str] = None) -> List[File]:
         """
         Lists items (files and folders) within a specific folder.
 

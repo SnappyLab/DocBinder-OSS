@@ -18,14 +18,17 @@ class GoogleDriveFiles:
     def __init__(self, service: Resource):
         self.service = service
 
-    def list_files(self, bucket: str = None, is_drive_root: bool = False) -> list[File]:
+    def list_files_in_folder(self, bucket_id: str | None = None, is_drive_root: bool = False) -> list[File]:
         args = {
             "includeItemsFromAllDrives": True,
             "supportsAllDrives": True,
             "fields": f"nextPageToken,files({REQUIRED_FIELDS})",
         }
-        logger.debug(f"{type(bucket)}: {bucket}")
-        bucket_id = bucket.id if hasattr(bucket, "id") else bucket
+        if bucket_id is None:
+            logger.debug("Listing files in the root directory.")
+            bucket_id = "root"
+        else:
+            logger.debug(f"{type(bucket_id)}: {bucket_id}")
 
         if is_drive_root and bucket_id != "root":
             args.update(
@@ -75,21 +78,23 @@ class GoogleDriveFiles:
                 shared=f.get("shared"),
                 starred=f.get("starred"),
                 is_folder=f.get("mimeType") == "application/vnd.google-apps.folder",
-                parents=bucket_id if bucket_id else None,
+                parents=f.get("parents") if isinstance(f.get("parents"), list) else None,
             )
             for f in resp.get("files")
         ]
 
     def list_files_recursively(self, bucket: str) -> list[File]:
-        """List all files in the Google Drive bucket."""
+        """List all files in the Google Drive bucket, including all subfolders."""
         is_drive_root = bucket != "root"
 
         def _recursive_list(folder_id: str):
-            items: list[File] = self.list_files(folder_id, is_drive_root=is_drive_root)
+            logger.debug(f"Listing files in folder: {folder_id}")
+            items: list[File] = self.list_files_in_folder(folder_id, is_drive_root=is_drive_root)
             all_items = []
             for item in items:
                 all_items.append(item)
-                if item.is_folder:
+                # Recursively list files in subfolders
+                if hasattr(item, "is_folder") and item.is_folder:
                     all_items.extend(_recursive_list(item.id))
             return all_items
 
@@ -136,3 +141,9 @@ class GoogleDriveFiles:
             is_folder=item_metadata.get("mimeType") == "application/vnd.google-apps.folder",
             parents=None,  # This field is not populated by the API, so we set it to None for files.
         )
+
+    def list_all_files(self, buckets: list[Bucket]) -> list[File]:
+        files = []
+        for bucket in buckets:
+            files.extend(self.list_files_recursively(bucket.id))
+        return files
