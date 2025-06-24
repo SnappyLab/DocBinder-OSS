@@ -192,26 +192,3 @@ def __write_csv(files_by_provider, filename):
                 if isinstance(parents, list):
                     file_dict["parents"] = ";".join(str(p) for p in parents)
                 writer.writerow({fn: file_dict.get(fn, "") for fn in fieldnames})
-
-
-def __write_json(files_by_provider, filename, flat=False):
-    with open(filename, "w") as jsonfile:
-        if flat:
-            all_files = []
-            for provider, files in files_by_provider.items():
-                for file in files:
-                    file_dict = (
-                        file.model_dump() if hasattr(file, "model_dump") else file.__dict__.copy()
-                    )
-                    file_dict["provider"] = provider
-                    all_files.append(file_dict)
-            json.dump(all_files, jsonfile, default=str, indent=2)
-        else:
-            grouped = {
-                provider: [
-                    file.model_dump() if hasattr(file, "model_dump") else file.__dict__.copy()
-                    for file in files
-                ]
-                for provider, files in files_by_provider.items()
-            }
-            json.dump(grouped, jsonfile, default=str, indent=2)

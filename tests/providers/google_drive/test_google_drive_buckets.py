@@ -3,7 +3,7 @@ from datetime import datetime
 from docbinder_oss.core.schemas import Bucket
 
 
-def test_list_buckets(mock_gdrive_service, gdrive_client):
+def test_list_buckets(mock_gdrive_provider, gdrive_client):
     fake_api_response = {
         "drives": [
             {
@@ -21,7 +21,7 @@ def test_list_buckets(mock_gdrive_service, gdrive_client):
             }
         ]
     }
-    mock_gdrive_service.drives.return_value.list.return_value.execute.return_value = (
+    mock_gdrive_provider.drives.return_value.list.return_value.execute.return_value = (
         fake_api_response
     )
 

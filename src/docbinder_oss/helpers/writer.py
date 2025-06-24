@@ -3,8 +3,13 @@ import json
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Dict, List, Union
+from pydantic import BaseModel
 from rich import print
-from rich.panel import Panel
+
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class Writer(ABC):
@@ -22,7 +27,6 @@ class MultiFormatWriter:
     _writers = {
         '.csv': 'CSVWriter',
         '.json': 'JSONWriter',
-        '.txt': 'TextWriter',
     }
     
     @classmethod
@@ -44,18 +48,31 @@ class MultiFormatWriter:
 
 
 class CSVWriter(Writer):
+    def get_fieldnames(self, data: Dict[str, List[BaseModel]]) -> List[str]:
+        fieldnames = next(iter(data.values()))[0].model_fields_set
+        return ["provider", *fieldnames]
+
     def write(self, data: List[Dict], file_path: Union[str, Path]) -> None:
         if not data:
+            logger.warning("No data to write to CSV.")
             return
         
         with open(file_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=data[0].keys())
+            writer = csv.DictWriter(f, fieldnames=self.get_fieldnames(data))
             writer.writeheader()
-            writer.writerows(data)
+            for provider, items in data.items():
+                for item in items:
+                    item_dict = item.model_dump() if isinstance(item, BaseModel) else item
+                    item_dict['provider'] = provider
+                    writer.writerow(item_dict)
 
 
 class JSONWriter(Writer):
-    def write(self, data: Any, file_path: Union[str, Path]) -> None:
+    def write(self, data: Dict[str, List[BaseModel]], file_path: Union[str, Path]) -> None:
+        data = {
+            provider: [item.model_dump() for item in items]
+            for provider, items in data.items()
+        }
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2, ensure_ascii=False, default=str)
 
@@ -73,12 +90,3 @@ class ConsoleWriter(Writer):
             for item in items:
                 table.add_row(provider, item.id, item.name, item.kind)
         print(table)
-
-
-class TextWriter(Writer):
-    def write(self, data: Any, file_path: Union[str, Path]) -> None:
-        with open(file_path, 'w', encoding='utf-8') as f:
-            if isinstance(data, (list, dict)):
-                f.write(json.dumps(data, indent=2, default=str))
-            else:
-                f.write(str(data))

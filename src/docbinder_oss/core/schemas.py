@@ -62,16 +62,9 @@ class File(BaseModel):
     size: Optional[str] = Field(description="Size in bytes, as a string. Only populated for files.")
     parents: Optional[List[str]] = Field(description="Parent folder IDs, if applicable.")
 
-    capabilities: Optional[FileCapabilities] = None
-
     shared: Optional[bool]
     starred: Optional[bool]
     trashed: Optional[bool]
-
-    # Add full_path as an optional field for export/CLI assignment
-    full_path: Optional[str] = Field(
-        default=None, description="Full path of the file/folder, computed at runtime."
-    )
 
     def __init__(self, **data: Any):
         # Coerce parents to a list of strings or None
