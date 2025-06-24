@@ -41,10 +41,12 @@ class FileCapabilities(BaseModel):
 class File(BaseModel):
     """Represents a file or folder"""
 
-    id: str
-    name: str
-    mime_type: str
-    kind: Optional[str]
+    id: str = Field(repr=True, description="Unique identifier for the file or folder.")
+    name: str = Field(
+        repr=True, description="Name of the file or folder. May not be unique."
+    )
+    mime_type: str = Field(repr=True, description="MIME type of the file or folder.")
+    kind: Optional[str] = Field(repr=True, description="Kind of the item, e.g., 'drive#file'.")
 
     is_folder: bool = Field(False, description="True if the item is a folder, False otherwise.")
 
@@ -52,9 +54,9 @@ class File(BaseModel):
     icon_link: Optional[HttpUrl]
 
     created_time: Optional[datetime]
-    modified_time: Optional[datetime]
+    modified_time: Optional[datetime] = Field(repr=True, description="Last modified time of the file or folder.")
 
-    owners: Optional[List[User]]
+    owners: Optional[List[User]] = Field(repr=True, description="List of owners of the file or folder.")
     last_modifying_user: Optional[User]
 
     size: Optional[str] = Field(description="Size in bytes, as a string. Only populated for files.")

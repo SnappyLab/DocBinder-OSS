@@ -10,6 +10,7 @@ from docbinder_oss.helpers.config import load_config
 from docbinder_oss.providers import create_provider_instance
 from docbinder_oss.helpers.config import Config
 from docbinder_oss.providers.base_class import BaseProvider
+from docbinder_oss.helpers.writer import MultiFormatWriter
 
 app = typer.Typer()
 
@@ -75,19 +76,8 @@ def search(
         max_size=max_size,
     )
 
-    if not export_format:
-        typer.echo(current_files)
-        return
-
-    elif export_format.lower() == "csv":
-        __write_csv(current_files, "search_results.csv")
-        typer.echo("Results written to search_results.csv")
-    elif export_format.lower() == "json":
-        __write_json(current_files, "search_results.json", flat=True)  # or flat=False for grouped
-        typer.echo("Results written to search_results.json")
-    else:
-        typer.echo(f"Unsupported export format: {export_format}")
-        raise typer.Exit(code=1)
+    MultiFormatWriter.write(current_files, export_format)
+    return
 
 
 def filter_files(
