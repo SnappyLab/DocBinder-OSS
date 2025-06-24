@@ -44,7 +44,7 @@ class GoogleDriveFiles:
         
         resp = self.service.files().list(**args).execute()
         print(len(resp["files"]))
-        exit(1)
+        # exit(1)
         return [
             File(
                 id=f.get("id"),

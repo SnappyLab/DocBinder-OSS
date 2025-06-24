@@ -74,15 +74,11 @@ class GoogleDriveClient(BaseProvider):
     def list_files(self, folder_id: Optional[str] = None) -> List[File]:
         return self.files.list_files(folder_id)
 
-    def list_files_recursively(self, bucket: str = None) -> List[File]:
-        """List all files and folders recursively in the specified bucket or root."""
-        return self.files.list_files_recursively(bucket)
-
     def list_all_files(self) -> List[File]:
         files = []
         buckets = self.buckets.list_buckets()
         for bucket in buckets:
-            files.extend(self.files.list_files_recursively(bucket))
+            files.extend(self.files.list_files(bucket))
         return files
 
     def get_file_metadata(self, item_id: str) -> File:

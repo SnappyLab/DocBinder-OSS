@@ -1,9 +1,11 @@
 from datetime import datetime
 import re
 import typer
+from rich import print as rich_print
 from typing import Optional
 
 from docbinder_oss.helpers.config import Config
+from docbinder_oss.helpers.rich_helpers import create_rich_table
 from docbinder_oss.services.base_class import BaseProvider
 
 app = typer.Typer()
@@ -62,6 +64,8 @@ def search(
             raise typer.Exit(code=1)
         current_files[provider_config.name] = client.list_all_files()
     
+    rich_print(current_files["my_google_drive"])
+    
     current_files = filter_files(
         current_files,
         name=name,
@@ -73,9 +77,13 @@ def search(
         min_size=min_size,
         max_size=max_size,
     )
-    
+    rich_print(current_files["my_google_drive"])
     if not export_format:
-        typer.echo(current_files)
+        table = create_rich_table(
+            headers=["Provider", "Name", "ID", "Size", "Created Time", "Modified Time"],
+            rows=current_files
+        )
+        rich_print(table)
         return
 
 def filter_files(
