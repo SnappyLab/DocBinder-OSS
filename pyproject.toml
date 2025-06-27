@@ -32,8 +32,10 @@ include = ["src/docbinder_oss/**"]
 
 [dependency-groups]
 dev = [
+    "black>=25.1.0",
     "mkdocs>=1.6.1",
     "mkdocs-material>=9.6.14",
+    "pre-commit>=4.2.0",
     "pytest>=8.4.0",
     "tox>=4.26.0",
     "tox-uv>=1.26.0",
@@ -46,9 +48,12 @@ testpaths = [
     "tests",
 ]
 
+[tool.black]
+line-length = 125
+skip-string-normalization = false
+
 [tool.ruff]
-# Set the maximum line length to 100.
-line-length = 100
+line-length = 125
 
 [tool.ruff.lint]
 # Add the `line-too-long` rule to the enforced rule set. By default, Ruff omits rules that

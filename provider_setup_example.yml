@@ -1,0 +1,4 @@
+providers:
+  - type: google_drive
+    name: my_google_drive
+    gcp_credentials_json: gcp_credentials.json

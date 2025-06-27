@@ -57,3 +57,25 @@ All dependencies are tracked in `pyproject.toml`. Use `uv` commands to keep it u
 
 **Note:**  
 Always use `uv` commands to manage dependencies and environments to keep `pyproject.toml` in sync.
+
+## Code Style and Linting
+
+This project uses [Black](https://black.readthedocs.io/en/stable/) for code formatting and [Ruff](https://docs.astral.sh/ruff/) for linting. All code should be formatted and linted before committing.
+
+- Run the following before committing code:
+
+```zsh
+uv run black .
+uv run ruff check .
+```
+
+- To automatically format and lint code on every commit, install pre-commit hooks:
+
+```zsh
+uv pip install pre-commit
+pre-commit install
+```
+
+This will ensure Black and Ruff are run on staged files before each commit.
+
+Configuration for Black and Ruff is in `pyproject.toml`. This enforces consistent quotes, spacing, and other style rules for all contributors.
