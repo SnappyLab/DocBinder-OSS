@@ -27,7 +27,7 @@ class GoogleDriveFiles:
         if bucket_id:
             args["q"] = f"'{bucket_id}' in parents and trashed=false"
         else:
-            args["q"] = "sharedWithMe=true and trashed=false"
+            args["q"] = None
 
         resp = self.service.files().list(**args).execute()
         files = resp.get("files", [])
