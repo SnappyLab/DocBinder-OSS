@@ -10,6 +10,7 @@ from docbinder_oss.helpers.config import load_config
 from docbinder_oss.providers import create_provider_instance
 from docbinder_oss.helpers.config import Config
 from docbinder_oss.providers.base_class import BaseProvider
+from docbinder_oss.helpers.writer import MultiFormatWriter
 
 app = typer.Typer()
 
@@ -75,19 +76,8 @@ def search(
         max_size=max_size,
     )
 
-    if not export_format:
-        typer.echo(current_files)
-        return
-
-    elif export_format.lower() == "csv":
-        __write_csv(current_files, "search_results.csv")
-        typer.echo("Results written to search_results.csv")
-    elif export_format.lower() == "json":
-        __write_json(current_files, "search_results.json", flat=True)  # or flat=False for grouped
-        typer.echo("Results written to search_results.json")
-    else:
-        typer.echo(f"Unsupported export format: {export_format}")
-        raise typer.Exit(code=1)
+    MultiFormatWriter.write(current_files, export_format)
+    return
 
 
 def filter_files(
@@ -202,26 +192,3 @@ def __write_csv(files_by_provider, filename):
                 if isinstance(parents, list):
                     file_dict["parents"] = ";".join(str(p) for p in parents)
                 writer.writerow({fn: file_dict.get(fn, "") for fn in fieldnames})
-
-
-def __write_json(files_by_provider, filename, flat=False):
-    with open(filename, "w") as jsonfile:
-        if flat:
-            all_files = []
-            for provider, files in files_by_provider.items():
-                for file in files:
-                    file_dict = (
-                        file.model_dump() if hasattr(file, "model_dump") else file.__dict__.copy()
-                    )
-                    file_dict["provider"] = provider
-                    all_files.append(file_dict)
-            json.dump(all_files, jsonfile, default=str, indent=2)
-        else:
-            grouped = {
-                provider: [
-                    file.model_dump() if hasattr(file, "model_dump") else file.__dict__.copy()
-                    for file in files
-                ]
-                for provider, files in files_by_provider.items()
-            }
-            json.dump(grouped, jsonfile, default=str, indent=2)
