@@ -65,4 +65,4 @@ providers:
 ## References
 
 - [Google Drive API Documentation](https://developers.google.com/drive)
-- [DocBinder Documentation](../README.md)
+- [DocBinder Documentation](https://github.com/SnappyLab/DocBinder-OSS)
