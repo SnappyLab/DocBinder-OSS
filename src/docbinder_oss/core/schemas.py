@@ -42,9 +42,7 @@ class File(BaseModel):
     """Represents a file or folder"""
 
     id: str = Field(repr=True, description="Unique identifier for the file or folder.")
-    name: str = Field(
-        repr=True, description="Name of the file or folder. May not be unique."
-    )
+    name: str = Field(repr=True, description="Name of the file or folder. May not be unique.")
     mime_type: str = Field(repr=True, description="MIME type of the file or folder.")
     kind: Optional[str] = Field(repr=True, description="Kind of the item, e.g., 'drive#file'.")
 

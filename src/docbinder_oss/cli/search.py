@@ -17,29 +17,15 @@ app = typer.Typer()
 @app.command()
 def search(
     name: Optional[str] = typer.Option(None, "--name", help="Regex to match file name"),
-    owner: Optional[str] = typer.Option(
-        None, "--owner", help="Owner/contributor/reader email address to filter"
-    ),
-    updated_after: Optional[str] = typer.Option(
-        None, "--updated-after", help="Last update after (ISO timestamp)"
-    ),
-    updated_before: Optional[str] = typer.Option(
-        None, "--updated-before", help="Last update before (ISO timestamp)"
-    ),
-    created_after: Optional[str] = typer.Option(
-        None, "--created-after", help="Created after (ISO timestamp)"
-    ),
-    created_before: Optional[str] = typer.Option(
-        None, "--created-before", help="Created before (ISO timestamp)"
-    ),
+    owner: Optional[str] = typer.Option(None, "--owner", help="Owner/contributor/reader email address to filter"),
+    updated_after: Optional[str] = typer.Option(None, "--updated-after", help="Last update after (ISO timestamp)"),
+    updated_before: Optional[str] = typer.Option(None, "--updated-before", help="Last update before (ISO timestamp)"),
+    created_after: Optional[str] = typer.Option(None, "--created-after", help="Created after (ISO timestamp)"),
+    created_before: Optional[str] = typer.Option(None, "--created-before", help="Created before (ISO timestamp)"),
     min_size: Optional[int] = typer.Option(None, "--min-size", help="Minimum file size in KB"),
     max_size: Optional[int] = typer.Option(None, "--max-size", help="Maximum file size in KB"),
-    provider: Optional[str] = typer.Option(
-        None, "--provider", "-p", help="Provider name to search in"
-    ),
-    export_format: str = typer.Option(
-        None, "--export-format", help="Export format: csv or json", show_default=True
-    ),
+    provider: Optional[str] = typer.Option(None, "--provider", "-p", help="Provider name to search in"),
+    export_format: str = typer.Option(None, "--export-format", help="Export format: csv or json", show_default=True),
 ):
     """Search for files or folders matching filters across all
     providers and export results as CSV or JSON."""
@@ -161,9 +147,7 @@ def __write_csv(files_by_provider, filename):
         writer.writeheader()
         for provider, files in files_by_provider.items():
             for file in files:
-                file_dict = (
-                    file.model_dump() if hasattr(file, "model_dump") else file.__dict__.copy()
-                )
+                file_dict = file.model_dump() if hasattr(file, "model_dump") else file.__dict__.copy()
                 file_dict["provider"] = provider
                 # Flatten owners for CSV (only email addresses)
                 owners = file_dict.get("owners")

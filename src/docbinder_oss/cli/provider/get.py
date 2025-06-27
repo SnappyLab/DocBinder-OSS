@@ -5,9 +5,7 @@ app = typer.Typer()
 
 @app.command("get")
 def get_provider(
-    connection_type: str = typer.Option(
-        None, "--type", "-t", help="The type of the provider to get."
-    ),
+    connection_type: str = typer.Option(None, "--type", "-t", help="The type of the provider to get."),
     name: str = typer.Option(None, "--name", "-n", help="The name of the provider to get."),
 ):
     """Get connection information for a provider by name or by type.
@@ -25,10 +23,7 @@ def get_provider(
             typer.echo(f"Provider '{name}' found with config: {provider}")
             provider_found = True
         if provider.type == connection_type:
-            typer.echo(
-                f"Provider '{provider.name}' of type '{connection_type}'"
-                f" found with config: {provider}"
-            )
+            typer.echo(f"Provider '{provider.name}' of type '{connection_type}'" f" found with config: {provider}")
             provider_found = True
     if not provider_found:
         typer.echo(f"No providers found with name '{name}' or type '{connection_type}'.")

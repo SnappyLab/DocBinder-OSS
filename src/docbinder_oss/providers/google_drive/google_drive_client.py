@@ -41,9 +41,7 @@ class GoogleDriveClient(BaseProvider):
     def _get_credentials(self):
         logger.info("Getting credentials for Google Drive client")
 
-        TOKEN_PATH = os.path.expanduser(
-            "~/.config/docbinder/gcp/" + self.config.name + "_token.json"
-        )
+        TOKEN_PATH = os.path.expanduser("~/.config/docbinder/gcp/" + self.config.name + "_token.json")
         # Ensure the directory exists
         os.makedirs(os.path.dirname(TOKEN_PATH), exist_ok=True)
         logger.debug(f"Token path: {TOKEN_PATH}")
@@ -57,9 +55,7 @@ class GoogleDriveClient(BaseProvider):
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
             else:
-                flow = InstalledAppFlow.from_client_secrets_file(
-                    self.settings.gcp_credentials_json, self.SCOPES
-                )
+                flow = InstalledAppFlow.from_client_secrets_file(self.settings.gcp_credentials_json, self.SCOPES)
                 creds = flow.run_local_server(port=0)
             # Save the credentials for the next run
             with open(TOKEN_PATH, "w") as token:

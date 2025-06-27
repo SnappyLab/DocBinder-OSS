@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 class Writer(ABC):
     """Abstract base writer class."""
-    
+
     @abstractmethod
     def write(self, data: Any, file_path: Union[None, str, Path]) -> None:
         """Write data to file."""
@@ -23,12 +23,12 @@ class Writer(ABC):
 
 class MultiFormatWriter:
     """Factory writer that automatically detects format from file extension."""
-    
+
     _writers = {
-        '.csv': 'CSVWriter',
-        '.json': 'JSONWriter',
+        ".csv": "CSVWriter",
+        ".json": "JSONWriter",
     }
-    
+
     @classmethod
     def write(cls, data: Any, file_path: Union[None, str, Path]) -> None:
         """Write data to file, format determined by extension."""
@@ -38,10 +38,10 @@ class MultiFormatWriter:
             return
         path = Path(file_path)
         extension = path.suffix.lower()
-        
+
         if extension not in cls._writers:
             raise ValueError(f"Unsupported format: {extension}")
-        
+
         writer_class = globals()[cls._writers[extension]]
         writer = writer_class()
         writer.write(data, file_path)
@@ -56,24 +56,21 @@ class CSVWriter(Writer):
         if not data:
             logger.warning("No data to write to CSV.")
             return
-        
-        with open(file_path, 'w', newline='', encoding='utf-8') as f:
+
+        with open(file_path, "w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=self.get_fieldnames(data))
             writer.writeheader()
             for provider, items in data.items():
                 for item in items:
                     item_dict = item.model_dump() if isinstance(item, BaseModel) else item
-                    item_dict['provider'] = provider
+                    item_dict["provider"] = provider
                     writer.writerow(item_dict)
 
 
 class JSONWriter(Writer):
     def write(self, data: Dict[str, List[BaseModel]], file_path: Union[str, Path]) -> None:
-        data = {
-            provider: [item.model_dump() for item in items]
-            for provider, items in data.items()
-        }
-        with open(file_path, 'w', encoding='utf-8') as f:
+        data = {provider: [item.model_dump() for item in items] for provider, items in data.items()}
+        with open(file_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False, default=str)
 
 

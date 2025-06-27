@@ -56,9 +56,7 @@ def build_all_full_paths(files, root_id="root", root_name="My Drive", root_id_to
                 break
             parent_id = parents[0]
             if parent_id in root_id_to_name:
-                temp_stack.append(
-                    (current.id, "/" + root_id_to_name[parent_id] + "/" + current.name)
-                )
+                temp_stack.append((current.id, "/" + root_id_to_name[parent_id] + "/" + current.name))
                 break
             parent = id_to_item.get(parent_id)
             if not parent:

@@ -21,9 +21,7 @@ def test_list_buckets(mock_gdrive_provider, gdrive_client):
             }
         ]
     }
-    mock_gdrive_provider.drives.return_value.list.return_value.execute.return_value = (
-        fake_api_response
-    )
+    mock_gdrive_provider.drives.return_value.list.return_value.execute.return_value = fake_api_response
 
     buckets = gdrive_client.list_buckets()
 

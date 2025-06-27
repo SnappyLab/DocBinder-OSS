@@ -18,9 +18,7 @@ def test_get_permissions(mock_gdrive_provider, gdrive_client):
             }
         ]
     }
-    mock_gdrive_provider.permissions.return_value.list.return_value.execute.return_value = (
-        fake_api_response
-    )
+    mock_gdrive_provider.permissions.return_value.list.return_value.execute.return_value = fake_api_response
 
     permissions = gdrive_client.get_permissions("1234")
 
