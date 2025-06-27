@@ -3,7 +3,6 @@ import re
 import typer
 from typing import Optional
 import csv
-import json
 
 from docbinder_oss.core.schemas import File
 from docbinder_oss.helpers.config import load_config
@@ -64,7 +63,7 @@ def search(
             raise typer.Exit(code=1)
         current_files[provider_config.name] = client.list_all_files()
 
-    current_files = filter_files(
+    current_files = __filter_files(
         current_files,
         name=name,
         owner=owner,
@@ -80,7 +79,7 @@ def search(
     return
 
 
-def filter_files(
+def __filter_files(
     files,
     name=None,
     owner=None,
