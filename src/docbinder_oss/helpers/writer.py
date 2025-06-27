@@ -40,7 +40,7 @@ class MultiFormatWriter:
         extension = path.suffix.lower()
 
         if extension not in cls._writers:
-            raise ValueError(f"Unsupported format: {extension}")
+            raise ValueError(f"Unsupported format: {extension}. Supported formats are: {', '.join(cls._writers.keys())}")
 
         writer_class = globals()[cls._writers[extension]]
         writer = writer_class()

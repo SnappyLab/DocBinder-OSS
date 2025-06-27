@@ -25,14 +25,12 @@ def search(
     min_size: Optional[int] = typer.Option(None, "--min-size", help="Minimum file size in KB"),
     max_size: Optional[int] = typer.Option(None, "--max-size", help="Maximum file size in KB"),
     provider: Optional[str] = typer.Option(None, "--provider", "-p", help="Provider name to search in"),
-    export_format: str = typer.Option(None, "--export-format", help="Export format: csv or json", show_default=True),
+    export_file: Optional[str] = typer.Option(
+        None, "--export-file", help="Export file name (e.g. results.csv or results.json)"
+    ),
 ):
     """Search for files or folders matching filters across all
-    providers and export results as CSV or JSON."""
-
-    # 1 Load documents with filter "provider"
-    # 2 Filter the documents based on the provided filters
-    # 3 Export results to CSV or JSON
+    providers and export results as CSV or JSON. If --export-file is not provided, results are printed to the console."""
 
     config: Config = load_config()
     if not config.providers:
@@ -61,7 +59,7 @@ def search(
         max_size=max_size,
     )
 
-    MultiFormatWriter.write(current_files, export_format)
+    MultiFormatWriter.write(current_files, export_file)
     return
 
 
