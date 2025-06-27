@@ -10,6 +10,9 @@ nav:
       - Commands:
           - Main CLI: commands/main.md
           - Provider: commands/provider.md
+  - Providers:
+      - Google Drive: tool/providers/google_drive.md
+      - Custom Provider: tool/providers/custom_provider.md
   - Contributing: CONTRIBUTING.md
   - Code of Conduct: CODE_OF_CONDUCT.md
   - Security: SECURITY.md
