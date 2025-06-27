@@ -9,7 +9,7 @@ from docbinder_oss.helpers.config import load_config
 from docbinder_oss.providers import create_provider_instance
 from docbinder_oss.helpers.config import Config
 from docbinder_oss.providers.base_class import BaseProvider
-from docbinder_oss.helpers.writer import MultiFormatWriter
+from docbinder_oss.helpers.writers.multiformat_writer import MultiFormatWriter
 
 app = typer.Typer()
 
@@ -100,16 +100,28 @@ def __filter_files(
     def file_matches(file: File):
         if name and not re.search(name, file.name, re.IGNORECASE):
             return False
-        if owner and not any(owner in u.email_address for u in file.owners):
+        if owner and (not file.owners or not any(owner in u.email_address for u in file.owners)):
             return False
-        if updated_after and __parse_dt(file.modified_time) < __parse_dt(updated_after):
-            return False
-        if updated_before and __parse_dt(file.modified_time) > __parse_dt(updated_before):
-            return False
-        if created_after and __parse_dt(file.created_time) < __parse_dt(created_after):
-            return False
-        if created_before and __parse_dt(file.created_time) > __parse_dt(created_before):
-            return False
+        if updated_after:
+            file_mod_time = __parse_dt(file.modified_time)
+            updated_after_dt = __parse_dt(updated_after)
+            if file_mod_time is None or updated_after_dt is None or file_mod_time < updated_after_dt:
+                return False
+        if updated_before:
+            file_mod_time = __parse_dt(file.modified_time)
+            updated_before_dt = __parse_dt(updated_before)
+            if file_mod_time is None or updated_before_dt is None or file_mod_time > updated_before_dt:
+                return False
+        if created_after:
+            file_created_time = __parse_dt(file.created_time)
+            created_after_dt = __parse_dt(created_after)
+            if file_created_time is None or created_after_dt is None or file_created_time < created_after_dt:
+                return False
+        if created_before:
+            file_created_time = __parse_dt(file.created_time)
+            created_before_dt = __parse_dt(created_before)
+            if file_created_time is not None and created_before_dt is not None and file_created_time > created_before_dt:
+                return False
         if min_size and file.size < min_size * 1024:
             return False
         if max_size and file.size > max_size * 1024:

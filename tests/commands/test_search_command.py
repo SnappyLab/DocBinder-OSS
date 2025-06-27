@@ -103,7 +103,7 @@ def patch_provider(monkeypatch, tmp_path):
 
 def test_search_export_csv():
     runner = CliRunner()
-    result = runner.invoke(app, ["search", "--export-format", "csv"])
+    result = runner.invoke(app, ["search", "--export-file", "search_results.csv"])
     assert result.exit_code == 0
     assert os.path.exists("search_results.csv")
     with open("search_results.csv") as f:
@@ -123,7 +123,7 @@ def test_search_export_csv():
 
 def test_search_export_json():
     runner = CliRunner()
-    result = runner.invoke(app, ["search", "--export-format", "json"])
+    result = runner.invoke(app, ["search", "--export-file", "search_results.json"])
     assert result.exit_code == 0
     assert os.path.exists("search_results.json")
     with open("search_results.json") as f:
@@ -142,7 +142,7 @@ def test_search_export_json():
 
 def test_search_name_filter():
     runner = CliRunner()
-    result = runner.invoke(app, ["search", "--name", "Alpha", "--export-format", "json"])
+    result = runner.invoke(app, ["search", "--name", "Alpha", "--export-file", "search_results.json"])
     assert result.exit_code == 0
     with open("search_results.json") as f:
         data = json.load(f)
@@ -152,7 +152,7 @@ def test_search_name_filter():
 
 def test_search_owner_filter():
     runner = CliRunner()
-    result = runner.invoke(app, ["search", "--owner", "beta@b.com", "--export-format", "json"])
+    result = runner.invoke(app, ["search", "--owner", "beta@b.com", "--export-file", "search_results.json"])
     assert result.exit_code == 0
     with open("search_results.json") as f:
         data = json.load(f)
@@ -162,7 +162,7 @@ def test_search_owner_filter():
 
 def test_search_updated_after_filter():
     runner = CliRunner()
-    result = runner.invoke(app, ["search", "--updated-after", "2024-02-01T00:00:00", "--export-format", "json"])
+    result = runner.invoke(app, ["search", "--updated-after", "2024-02-01T00:00:00", "--export-file", "search_results.json"])
     assert result.exit_code == 0
     with open("search_results.json") as f:
         data = json.load(f)
@@ -172,7 +172,9 @@ def test_search_updated_after_filter():
 
 def test_search_created_before_filter():
     runner = CliRunner()
-    result = runner.invoke(app, ["search", "--created-before", "2024-02-01T00:00:00", "--export-format", "json"])
+    result = runner.invoke(
+        app, ["search", "--created-before", "2024-02-01T00:00:00", "--export-file", "search_results.json"]
+    )
     assert result.exit_code == 0
     with open("search_results.json") as f:
         data = json.load(f)
@@ -182,7 +184,7 @@ def test_search_created_before_filter():
 
 def test_search_min_size_filter():
     runner = CliRunner()
-    result = runner.invoke(app, ["search", "--min-size", "3", "--export-format", "json"])
+    result = runner.invoke(app, ["search", "--min-size", "3", "--export-file", "search_results.json"])
     assert result.exit_code == 0
     with open("search_results.json") as f:
         data = json.load(f)
@@ -192,7 +194,7 @@ def test_search_min_size_filter():
 
 def test_search_max_size_filter():
     runner = CliRunner()
-    result = runner.invoke(app, ["search", "--max-size", "3", "--export-format", "json"])
+    result = runner.invoke(app, ["search", "--max-size", "3", "--export-file", "search_results.json"])
     assert result.exit_code == 0
     with open("search_results.json") as f:
         data = json.load(f)
@@ -202,7 +204,7 @@ def test_search_max_size_filter():
 
 def test_search_provider_filter():
     runner = CliRunner()
-    result = runner.invoke(app, ["search", "--provider", "dummy2", "--export-format", "json"])
+    result = runner.invoke(app, ["search", "--provider", "dummy2", "--export-file", "search_results.json"])
     assert result.exit_code == 0
     with open("search_results.json") as f:
         data = json.load(f)
@@ -225,8 +227,8 @@ def test_search_combined_filters():
             "3",
             "--provider",
             "dummy2",
-            "--export-format",
-            "json",
+            "--export-file",
+            "search_results.json",
         ],
     )
     assert result.exit_code == 0
