@@ -7,8 +7,8 @@ from typing import Annotated, Optional, Union
 from pydantic import Field
 from rich.logging import RichHandler
 
-from docbinder_oss import services
-from docbinder_oss.services.base_class import BaseProvider, ServiceConfig
+from docbinder_oss import providers
+from docbinder_oss.providers.base_class import BaseProvider, ServiceConfig
 
 if not logging.getLogger().handlers:
     FORMAT = "%(message)s"
@@ -86,5 +86,5 @@ def get_service_union() -> Annotated:
     return Annotated[dynamic_union, Field(discriminator="type")]
 
 
-load_services(services)
+load_services(providers)
 ServiceUnion = get_service_union()

@@ -25,9 +25,7 @@ def setup(
         providers = {}
         for entry in provider:
             if ":" not in entry:
-                typer.echo(
-                    f"Provider entry '{entry}' must be in provider:key1=val1,key2=val2 format."
-                )
+                typer.echo(f"Provider entry '{entry}' must be in provider:key1=val1,key2=val2 format.")
                 raise typer.Exit(code=1)
             prov_name, prov_kvs = entry.split(":", 1)
             kv_dict = {}

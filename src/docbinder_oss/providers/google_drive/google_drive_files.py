@@ -2,7 +2,7 @@ import logging
 
 from googleapiclient.discovery import Resource
 
-from docbinder_oss.core.schemas import Bucket, File, User
+from docbinder_oss.core.schemas import File, User
 
 logger = logging.getLogger(__name__)
 
@@ -18,34 +18,26 @@ class GoogleDriveFiles:
     def __init__(self, service: Resource):
         self.service = service
 
-    def list_files_in_folder(self, bucket_id: str | None = None, is_drive_root: bool = False) -> list[File]:
+    def list_files_in_folder(self, bucket_id: str | None = None) -> list[File]:
         args = {
-            "includeItemsFromAllDrives": True,
-            "supportsAllDrives": True,
             "fields": f"nextPageToken,files({REQUIRED_FIELDS})",
+            "pageSize": 1000,
         }
-        if bucket_id is None:
-            logger.debug("Listing files in the root directory.")
-            bucket_id = "root"
-        else:
-            logger.debug(f"{type(bucket_id)}: {bucket_id}")
 
-        if is_drive_root and bucket_id != "root":
-            args.update(
-                {
-                    "corpora": "drive",
-                    "driveId": bucket_id,
-                    "q": "'root' in parents and trashed=false",
-                }
-            )
+        if bucket_id:
+            args["q"] = f"'{bucket_id}' in parents and trashed=false"
         else:
-            parent_id = bucket_id
-            if parent_id == "root" or parent_id is None:
-                args["q"] = "'root' in parents and trashed=false"
-            else:
-                args["q"] = f"'{parent_id}' in parents and trashed=false"
+            args["q"] = "sharedWithMe=true and trashed=false"
 
-        resp = self.service.files().list(**args).execute()  # type: ignore[attr-defined]
+        resp = self.service.files().list(**args).execute()
+        files = resp.get("files", [])
+        next_page_token = resp.get("nextPageToken")
+
+        while next_page_token:
+            logger.debug("Getting next page...")
+            current_page = self.service.files().list(**args, pageToken=next_page_token).execute()
+            files.extend(current_page.get("files", []))
+            next_page_token = current_page.get("nextPageToken")
 
         return [
             File(
@@ -79,25 +71,8 @@ class GoogleDriveFiles:
                 is_folder=f.get("mimeType") == "application/vnd.google-apps.folder",
                 parents=f.get("parents") if isinstance(f.get("parents"), list) else None,
             )
-            for f in resp.get("files")
+            for f in files
         ]
-
-    def list_files_recursively(self, bucket: str) -> list[File]:
-        """List all files in the Google Drive bucket, including all subfolders."""
-        is_drive_root = bucket != "root"
-
-        def _recursive_list(folder_id: str):
-            logger.debug(f"Listing files in folder: {folder_id}")
-            items: list[File] = self.list_files_in_folder(folder_id, is_drive_root=is_drive_root)
-            all_items = []
-            for item in items:
-                all_items.append(item)
-                # Recursively list files in subfolders
-                if hasattr(item, "is_folder") and item.is_folder:
-                    all_items.extend(_recursive_list(item.id))
-            return all_items
-
-        return _recursive_list(bucket)
 
     def get_file_metadata(self, file_id: str):
         item_metadata = (
@@ -140,9 +115,3 @@ class GoogleDriveFiles:
             is_folder=item_metadata.get("mimeType") == "application/vnd.google-apps.folder",
             parents=None,  # This field is not populated by the API, so we set it to None for files.
         )
-
-    def list_all_files(self, buckets: list[Bucket]) -> list[File]:
-        files = []
-        for bucket in buckets:
-            files.extend(self.list_files_recursively(bucket.id))
-        return files

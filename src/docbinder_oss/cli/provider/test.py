@@ -10,7 +10,7 @@ def test(
 ):
     """Test the connection to a specific provider."""
     from docbinder_oss.helpers.config import load_config
-    from docbinder_oss.services import create_provider_instance
+    from docbinder_oss.providers import create_provider_instance
 
     if not name:
         typer.echo("Provider name is required.")

@@ -1,6 +1,6 @@
 from typing import Literal
 
-from docbinder_oss.services.base_class import ServiceConfig
+from docbinder_oss.providers.base_class import ServiceConfig
 
 
 class GoogleDriveServiceConfig(ServiceConfig):

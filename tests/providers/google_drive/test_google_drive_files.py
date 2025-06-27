@@ -1,10 +1,6 @@
 from datetime import datetime
 import os
 import pytest
-from typer.testing import CliRunner
-
-from docbinder_oss.core import schemas
-from docbinder_oss.main import app
 
 
 class DummyFile:
@@ -56,16 +52,14 @@ def patch_provider(monkeypatch, tmp_path):
         def list_all_files(self):
             return list_all_files(self)
 
-    monkeypatch.setattr(
-        "docbinder_oss.services.create_provider_instance", lambda cfg: DummyClient()
-    )
+    monkeypatch.setattr("docbinder_oss.providers.create_provider_instance", lambda cfg: DummyClient())
     orig_cwd = os.getcwd()
     os.chdir(tmp_path)
     yield
     os.chdir(orig_cwd)
 
 
-def test_list_files(mock_gdrive_service, gdrive_client):
+def test_list_files(mock_gdrive_provider, gdrive_client):
     fake_api_response = {
         "files": [
             {
@@ -101,9 +95,7 @@ def test_list_files(mock_gdrive_service, gdrive_client):
         ]
     }
 
-    mock_gdrive_service.files.return_value.list.return_value.execute.return_value = (
-        fake_api_response
-    )
+    mock_gdrive_provider.files.return_value.list.return_value.execute.return_value = fake_api_response
 
     files = gdrive_client.list_files_in_folder()
 

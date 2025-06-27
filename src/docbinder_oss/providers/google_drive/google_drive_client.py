@@ -8,13 +8,13 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
 from docbinder_oss.core.schemas import Bucket, File, Permission
-from docbinder_oss.services.base_class import BaseProvider
-from docbinder_oss.services.google_drive.google_drive_buckets import GoogleDriveBuckets
-from docbinder_oss.services.google_drive.google_drive_files import GoogleDriveFiles
-from docbinder_oss.services.google_drive.google_drive_permissions import (
+from docbinder_oss.providers.base_class import BaseProvider
+from docbinder_oss.providers.google_drive.google_drive_buckets import GoogleDriveBuckets
+from docbinder_oss.providers.google_drive.google_drive_files import GoogleDriveFiles
+from docbinder_oss.providers.google_drive.google_drive_permissions import (
     GoogleDrivePermissions,
 )
-from docbinder_oss.services.google_drive.google_drive_service_config import (
+from docbinder_oss.providers.google_drive.google_drive_service_config import (
     GoogleDriveServiceConfig,
 )
 
@@ -31,7 +31,7 @@ class GoogleDriveClient(BaseProvider):
             "https://www.googleapis.com/auth/drive.metadata.readonly",
             "https://www.googleapis.com/auth/drive.activity.readonly",
         ]
-        self.config = config
+        self.settings = config
         self.creds = self._get_credentials()
         self.service = build("drive", "v3", credentials=self.creds)
         self.buckets = GoogleDriveBuckets(self.service)
@@ -47,9 +47,7 @@ class GoogleDriveClient(BaseProvider):
         logger.debug(f"Token path: {TOKEN_PATH}")
 
         try:
-            creds = Credentials.from_authorized_user_file(
-                TOKEN_PATH, scopes=self.SCOPES
-            )
+            creds = Credentials.from_authorized_user_file(TOKEN_PATH, scopes=self.SCOPES)
         except (FileNotFoundError, ValueError):
             logger.warning("Credentials file not found or invalid, re-authenticating")
             creds = None
@@ -57,9 +55,7 @@ class GoogleDriveClient(BaseProvider):
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
             else:
-                flow = InstalledAppFlow.from_client_secrets_file(
-                    self.config.gcp_credentials_json, self.SCOPES
-                )
+                flow = InstalledAppFlow.from_client_secrets_file(self.settings.gcp_credentials_json, self.SCOPES)
                 creds = flow.run_local_server(port=0)
             # Save the credentials for the next run
             with open(TOKEN_PATH, "w") as token:
@@ -80,19 +76,11 @@ class GoogleDriveClient(BaseProvider):
     def list_files_in_folder(self, folder_id: Optional[str] = None) -> List[File]:
         return self.files.list_files_in_folder(folder_id)
 
-    def list_files_recursively(self, bucket_id: str | None = None) -> List[File]:
-        """List all files and folders recursively in the specified bucket or root."""
-        if bucket_id is None:
-            bucket_id = "root"
-        logger.info(f"Listing files recursively in bucket: {bucket_id}")
-        return self.files.list_files_recursively(bucket_id)
-
     def list_all_files(self) -> List[File]:
-        buckets = self.buckets.list_buckets()            
-        return self.files.list_all_files(buckets)
+        return self.files.list_files_in_folder()
 
     def get_file_metadata(self, item_id: str) -> File:
         return self.files.get_file_metadata(item_id)
 
-    def get_permissions(self, item_id: str) -> List[Permission]:
-        return self.permissions.get_permissions(item_id)
+    def get_permissions(self, file_id: str) -> List[Permission]:
+        return self.permissions.get_permissions(file_id)

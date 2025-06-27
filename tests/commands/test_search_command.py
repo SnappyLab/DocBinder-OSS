@@ -4,8 +4,6 @@ import json
 import pytest
 from typer.testing import CliRunner
 from docbinder_oss.main import app
-import sys
-import importlib
 
 
 class DummyFile:
@@ -16,9 +14,7 @@ class DummyFile:
         self.mime_type = kwargs.get("mime_type", "application/pdf")
         self.created_time = kwargs.get("created_time", "2024-01-01T00:00:00")
         self.modified_time = kwargs.get("modified_time", "2024-01-02T00:00:00")
-        self.owners = kwargs.get(
-            "owners", [type("User", (), {"email_address": "owner@example.com"})()]
-        )
+        self.owners = kwargs.get("owners", [type("User", (), {"email_address": "owner@example.com"})()])
         self.last_modifying_user = kwargs.get(
             "last_modifying_user", type("User", (), {"email_address": "mod@example.com"})()
         )
@@ -166,9 +162,7 @@ def test_search_owner_filter():
 
 def test_search_updated_after_filter():
     runner = CliRunner()
-    result = runner.invoke(
-        app, ["search", "--updated-after", "2024-02-01T00:00:00", "--export-format", "json"]
-    )
+    result = runner.invoke(app, ["search", "--updated-after", "2024-02-01T00:00:00", "--export-format", "json"])
     assert result.exit_code == 0
     with open("search_results.json") as f:
         data = json.load(f)
@@ -178,9 +172,7 @@ def test_search_updated_after_filter():
 
 def test_search_created_before_filter():
     runner = CliRunner()
-    result = runner.invoke(
-        app, ["search", "--created-before", "2024-02-01T00:00:00", "--export-format", "json"]
-    )
+    result = runner.invoke(app, ["search", "--created-before", "2024-02-01T00:00:00", "--export-format", "json"])
     assert result.exit_code == 0
     with open("search_results.json") as f:
         data = json.load(f)
