@@ -1,6 +1,8 @@
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict, List
 
+from docbinder_oss.core.schemas import File
+from docbinder_oss.helpers.writers.base import Writer
 from docbinder_oss.helpers.writers.writer_console import ConsoleWriter
 from docbinder_oss.helpers.writers.writer_csv import CSVWriter
 from docbinder_oss.helpers.writers.writer_json import JSONWriter
@@ -20,7 +22,7 @@ class MultiFormatWriter:
     }
 
     @classmethod
-    def write(cls, data: Any, file_path: str | None = None) -> None:
+    def write(cls, data: Dict[str, List[File]], file_path: str | None = None) -> None:
         if not file_path:
             ConsoleWriter().write(data)
             return
@@ -30,5 +32,6 @@ class MultiFormatWriter:
         if writer_key not in cls._writers:
             raise ValueError(f"Unsupported format: {file_path}")
         writer_class = cls._writers[writer_key]
-        writer = writer_class()
+        writer: Writer = writer_class()
         writer.write(data, file_path)
+ 

@@ -48,10 +48,6 @@ testpaths = [
     "tests",
 ]
 
-[tool.black]
-line-length = 125
-skip-string-normalization = false
-
 [tool.ruff]
 line-length = 125
 
