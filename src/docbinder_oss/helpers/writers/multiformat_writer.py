@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Dict, List
 
 from docbinder_oss.core.schemas import File
 from docbinder_oss.helpers.writers.base import Writer

@@ -96,7 +96,10 @@ def load_config_mock(request, create_config_mock):
     a dummy configuration with a specified number of providers.
     """
     name, number_of_providers = request.param
-    with patch("docbinder_oss.cli.search.load_config", return_value=create_config_mock(name, number_of_providers)) as _fixture:
+    with patch(
+        "docbinder_oss.cli.search.load_config",
+        return_value=create_config_mock(name, number_of_providers)
+    ) as _fixture:
         yield _fixture
 
 @pytest.fixture(scope='session')
@@ -105,7 +108,10 @@ def create_provider_instance_mock(request, create_provider_mock):
     This fixture mocks the `create_provider_instance` function to return
     a dummy provider instance based on the provider name.
     """
-    with patch("docbinder_oss.cli.search.create_provider_instance", return_value=create_provider_mock(request.param)) as _fixture:
+    with patch(
+        "docbinder_oss.cli.search.create_provider_instance", 
+        return_value=create_provider_mock(request.param)
+    ) as _fixture:
         yield _fixture
 
 @pytest.fixture(scope="session")

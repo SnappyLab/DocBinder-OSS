@@ -84,7 +84,19 @@ def test_search_name_filter_not_empty(load_config_mock, create_provider_instance
 @pytest.mark.parametrize('load_config_mock', [("dummy", 1)], indirect=True)
 @pytest.mark.parametrize('create_provider_instance_mock', [("dummy")], indirect=True)
 @pytest.mark.parametrize('list_all_files_mock', [([
-                DummyModel(id="dummy_file1", name="dummy File 1", kind="file", owners=[User(display_name="test", email_address="beta@a.com", photo_link="https://test.com", kind="")]),
+                DummyModel(
+                    id="dummy_file1",
+                    name="dummy File 1",
+                    kind="file",
+                    owners=[
+                        User(
+                            display_name="test",
+                            email_address="beta@a.com",
+                            photo_link="https://test.com",
+                            kind=""
+                        )
+                    ]
+                ),
                 DummyModel(id="dummy_file2", name="File 2", kind="file", owners=[]),
             ])], indirect=True)
 def test_search_owner_filter_empty(load_config_mock, create_provider_instance_mock, list_all_files_mock):
@@ -98,7 +110,19 @@ def test_search_owner_filter_empty(load_config_mock, create_provider_instance_mo
 @pytest.mark.parametrize('load_config_mock', [("dummy", 1)], indirect=True)
 @pytest.mark.parametrize('create_provider_instance_mock', [("dummy")], indirect=True)
 @pytest.mark.parametrize('list_all_files_mock', [([
-                DummyModel(id="dummy_file1", name="dummy File 1", kind="file", owners=[User(display_name="test", email_address="beta@b.com", photo_link="https://test.com", kind="")]),
+                DummyModel(
+                    id="dummy_file1",
+                    name="dummy File 1",
+                    kind="file",
+                    owners=[
+                        User(
+                            display_name="test",
+                            email_address="beta@b.com",
+                            photo_link="https://test.com",
+                            kind=""
+                        )
+                    ]
+                ),
                 DummyModel(id="dummy_file2", name="File 2", kind="file", owners=[]),
             ])], indirect=True)
 def test_search_owner_filter_not_empty(load_config_mock, create_provider_instance_mock, list_all_files_mock):
@@ -262,7 +286,20 @@ def test_search_provider_filter(load_config_mock, create_provider_instance_mock,
 @pytest.mark.parametrize('load_config_mock', [("dummy", 2)], indirect=True)
 @pytest.mark.parametrize('create_provider_instance_mock', [("dummy")], indirect=True)
 @pytest.mark.parametrize('list_all_files_mock', [([
-                DummyModel(id="dummy_file1", name="Beta File 1", kind="file", size=5, owners=[User(display_name="test", email_address="beta@b.com", photo_link="https://test.com", kind="")]),
+                DummyModel(
+                    id="dummy_file1",
+                    name="Beta File 1",
+                    kind="file",
+                    size=5,
+                    owners=[
+                        User(
+                            display_name="test",
+                            email_address="beta@b.com",
+                            photo_link="https://test.com",
+                            kind=""
+                        )
+                    ]
+                ),
                 DummyModel(id="dummy_file2", name="dummy File 2", kind="file", size=2),
             ])], indirect=True) 
 def test_search_combined_filters(load_config_mock, create_provider_instance_mock, list_all_files_mock):

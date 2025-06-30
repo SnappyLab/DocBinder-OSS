@@ -1,9 +1,7 @@
 from datetime import datetime
-import logging
 import re
 import typer
 from typing import Dict, List, Optional
-import csv
 
 from docbinder_oss.core.schemas import File
 from docbinder_oss.helpers.config import load_config
