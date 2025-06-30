@@ -121,7 +121,6 @@ def __filter_files(
         if created_before:
             file_created_time = __parse_dt(file.created_time)
             created_before_dt = __parse_dt(created_before)
-            logging.debug(f"File created time: {file_created_time}, Created before: {created_before_dt}, Type: {type(file_created_time)}, Type: {type(created_before_dt)}")
             if file_created_time is not None and created_before_dt is not None and file_created_time > created_before_dt:
                 return False
         if min_size and file.size < min_size:
