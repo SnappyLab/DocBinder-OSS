@@ -40,7 +40,7 @@ jobs:
 
       - name: Lint code with uv
         run: |
-          uv tool run ruff check
+          uv tool run pre-commit
 
       - name: Run tox with uv
         run: |
