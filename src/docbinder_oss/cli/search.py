@@ -1,8 +1,7 @@
 from datetime import datetime
 import re
 import typer
-from typing import Optional
-import csv
+from typing import Dict, List, Optional
 
 from docbinder_oss.core.schemas import File
 from docbinder_oss.helpers.config import load_config
@@ -64,7 +63,7 @@ def search(
 
 
 def __filter_files(
-    files,
+    files: Dict[str, List[File]],
     name=None,
     owner=None,
     updated_after=None,
@@ -73,7 +72,7 @@ def __filter_files(
     created_before=None,
     min_size=None,
     max_size=None,
-):
+) -> Dict[str, List[File]]:
     """
     Filters a collection of files based on various criteria such as name, owner,
     modification/creation dates, and file size.
@@ -103,14 +102,14 @@ def __filter_files(
         if owner and (not file.owners or not any(owner in u.email_address for u in file.owners)):
             return False
         if updated_after:
-            file_mod_time = __parse_dt(file.modified_time)
+            file_modified_time = __parse_dt(file.modified_time)
             updated_after_dt = __parse_dt(updated_after)
-            if file_mod_time is None or updated_after_dt is None or file_mod_time < updated_after_dt:
+            if file_modified_time is None or updated_after_dt is None or file_modified_time < updated_after_dt:
                 return False
         if updated_before:
-            file_mod_time = __parse_dt(file.modified_time)
+            file_modified_time = __parse_dt(file.modified_time)
             updated_before_dt = __parse_dt(updated_before)
-            if file_mod_time is None or updated_before_dt is None or file_mod_time > updated_before_dt:
+            if file_modified_time is None or updated_before_dt is None or file_modified_time > updated_before_dt:
                 return False
         if created_after:
             file_created_time = __parse_dt(file.created_time)
@@ -122,9 +121,9 @@ def __filter_files(
             created_before_dt = __parse_dt(created_before)
             if file_created_time is not None and created_before_dt is not None and file_created_time > created_before_dt:
                 return False
-        if min_size and file.size < min_size * 1024:
+        if min_size and file.size < min_size:
             return False
-        if max_size and file.size > max_size * 1024:
+        if max_size and file.size > max_size:
             return False
         return True
 
@@ -139,49 +138,6 @@ def __parse_dt(val):
         return val
     try:
         return datetime.fromisoformat(val)
-    except Exception:
-        return val
-
-
-def __write_csv(files_by_provider, filename):
-    # Collect all possible fieldnames from all files
-    all_fieldnames = set(["provider"])
-    for files in files_by_provider.values():
-        for file in files:
-            file_dict = file.model_dump() if hasattr(file, "model_dump") else file.__dict__.copy()
-            all_fieldnames.update(file_dict.keys())
-    # Move provider to the front, rest sorted
-    fieldnames = ["provider"] + sorted(f for f in all_fieldnames if f != "provider")
-    with open(filename, "w", newline="") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        for provider, files in files_by_provider.items():
-            for file in files:
-                file_dict = file.model_dump() if hasattr(file, "model_dump") else file.__dict__.copy()
-                file_dict["provider"] = provider
-                # Flatten owners for CSV (only email addresses)
-                owners = file_dict.get("owners")
-                if isinstance(owners, list):
-                    emails = []
-                    for u in owners:
-                        if hasattr(u, "email_address") and u.email_address:
-                            emails.append(u.email_address)
-                        elif isinstance(u, dict) and u.get("email_address"):
-                            emails.append(u["email_address"])
-                        elif isinstance(u, str):
-                            emails.append(u)
-                    file_dict["owners"] = ";".join(emails)
-                # Flatten last_modifying_user for CSV (only email address)
-                last_mod = file_dict.get("last_modifying_user")
-                if last_mod is not None:
-                    if hasattr(last_mod, "email_address"):
-                        file_dict["last_modifying_user"] = last_mod.email_address
-                    elif isinstance(last_mod, dict) and "email_address" in last_mod:
-                        file_dict["last_modifying_user"] = last_mod["email_address"]
-                    else:
-                        file_dict["last_modifying_user"] = str(last_mod)
-                # Flatten parents for CSV
-                parents = file_dict.get("parents")
-                if isinstance(parents, list):
-                    file_dict["parents"] = ";".join(str(p) for p in parents)
-                writer.writerow({fn: file_dict.get(fn, "") for fn in fieldnames})
+    except Exception as e:
+        typer.echo(f"Failed to parse datetime from value: {val} with error: {e}", err=True)
+        raise ValueError(f"Invalid datetime format: {val}") from e

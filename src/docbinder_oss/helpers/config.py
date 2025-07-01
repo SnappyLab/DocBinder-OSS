@@ -1,11 +1,12 @@
 import logging
 import os
+from typing import List
 
 import typer
 import yaml
 from pydantic import BaseModel, ValidationError
 
-from docbinder_oss.providers import get_provider_registry
+from docbinder_oss.providers import ServiceUnion, get_provider_registry
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +16,7 @@ CONFIG_PATH = os.path.expanduser("~/.config/docbinder/config.yaml")
 class Config(BaseModel):
     """Main configuration model that holds a list of all provider configs."""
 
-    providers: list
+    providers: List[ServiceUnion] # type: ignore
 
 
 def load_config() -> Config:

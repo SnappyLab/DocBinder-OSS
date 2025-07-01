@@ -50,12 +50,12 @@ def test_json_writer(tmp_path, sample_data):
     assert file_path.exists()
     with open(file_path, encoding="utf-8") as f:
         data = json.load(f)
-        assert isinstance(data, list)
-        assert len(data) == 3
-        providers = {d["provider"] for d in data}
-        assert "provider1" in providers
-        assert "provider2" in providers
-        assert any(d["id"] == "1" and d["provider"] == "provider1" for d in data)
+        assert isinstance(data, dict)
+        assert len(data) == 2
+        assert "provider1" in data
+        assert "provider2" in data
+        assert data["provider1"][0]["id"] == "1"
+        assert data["provider2"][0]["id"] == "3"
 
 
 def test_multiformat_writer_csv(tmp_path, sample_data):
@@ -74,9 +74,9 @@ def test_multiformat_writer_json(tmp_path, sample_data):
     assert file_path.exists()
     with open(file_path, encoding="utf-8") as f:
         data = json.load(f)
-        assert isinstance(data, list)
-        providers = {d["provider"] for d in data}
-        assert "provider2" in providers
+        assert isinstance(data, dict)
+        assert "provider1" in data
+        assert "provider2" in data
 
 
 def test_multiformat_writer_unsupported(tmp_path, sample_data):
