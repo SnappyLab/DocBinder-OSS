@@ -1,4 +1,4 @@
-name: Publish to PyPI
+name: DocBinder OSS Publish to PyPI
 # This workflow publishes the package to PyPI when a new tag is created on the main branch.
 on:
   push:

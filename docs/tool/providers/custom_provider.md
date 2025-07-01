@@ -6,7 +6,7 @@ This guide explains how to integrate a new storage provider (e.g., DropBox, OneD
 
 ## 1. Create a Service Configuration Class
 
-Each provider must define a configuration class that inherits from [`ServiceConfig`](src/docbinder_oss/services/base_class.py):
+Each provider must define a configuration class that inherits from [`ServiceConfig`](https://github.com/SnappyLab/DocBinder-OSS/blob/main/src/docbinder_oss/services/base_class.py):
 
 ```python
 # filepath: src/docbinder_oss/services/my_provider/my_provider_service_config.py
@@ -26,7 +26,7 @@ class MyProviderServiceConfig(ServiceConfig):
 
 ## 2. Implement the Storage Client
 
-Create a client class that inherits from [`BaseStorageClient`](src/docbinder_oss/services/base_class.py) and implements all abstract methods:
+Create a client class that inherits from [`BaseStorageClient`](https://github.com/SnappyLab/DocBinder-OSS/blob/main/src/docbinder_oss/services/base_class.py) and implements all abstract methods:
 
 ```python
 # filepath: src/docbinder_oss/services/my_provider/my_provider_client.py
@@ -57,7 +57,7 @@ class MyProviderClient(BaseStorageClient):
         pass
 ```
 
-- Use the shared models [`File`](src/docbinder_oss/core/schemas.py), [`Permission`](src/docbinder_oss/core/schemas.py), etc., for return types.
+- Use the shared models [`File`](https://github.com/SnappyLab/DocBinder-OSS/blob/main/src/docbinder_oss/core/schemas.py), [`Permission`](https://github.com/SnappyLab/DocBinder-OSS/blob/main/src/docbinder_oss/core/schemas.py), etc., for return types.
 
 ---
 
@@ -109,10 +109,10 @@ providers:
 
 ## Reference
 
-- [src/docbinder_oss/services/base_class.py](src/docbinder_oss/services/base_class.py)
-- [src/docbinder_oss/core/schemas.py](src/docbinder_oss/core/schemas.py)
-- [src/docbinder_oss/services/google_drive/](src/docbinder_oss/services/google_drive/) (example implementation)
-- [src/docbinder_oss/services/__init__.py](src/docbinder_oss/services/__init__.py)
+- [src/docbinder_oss/services/base_class.py](https://github.com/SnappyLab/DocBinder-OSS/blob/main/src/docbinder_oss/services/base_class.py)
+- [src/docbinder_oss/core/schemas.py](https://github.com/SnappyLab/DocBinder-OSS/blob/main/src/docbinder_oss/core/schemas.py)
+- [src/docbinder_oss/services/google_drive/](https://github.com/SnappyLab/DocBinder-OSS/tree/main/src/docbinder_oss/services/google_drive/) (example implementation)
+- [src/docbinder_oss/services/__init__.py](https://github.com/SnappyLab/DocBinder-OSS/blob/main/src/docbinder_oss/services/__init__.py)
 
 ---
 

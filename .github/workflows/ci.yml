@@ -1,4 +1,4 @@
-name: DocBinder OSS Library CI/CD
+name: DocBinder OSS Library CI
 
 on:
   pull_request:
@@ -40,7 +40,7 @@ jobs:
 
       - name: Lint code with uv
         run: |
-          uv tool run ruff check
+          uv tool run pre-commit
 
       - name: Run tox with uv
         run: |
