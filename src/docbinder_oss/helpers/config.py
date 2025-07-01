@@ -1,7 +1,6 @@
 import logging
-import os
+from pathlib import Path  
 from typing import List
-
 import typer
 import yaml
 from pydantic import BaseModel, ValidationError
@@ -10,21 +9,23 @@ from docbinder_oss.providers import ServiceUnion, get_provider_registry
 
 logger = logging.getLogger(__name__)
 
-CONFIG_PATH = os.path.expanduser("~/.config/docbinder/config.yaml")
-
+CONFIG_PATH = Path("~/.config/docbinder/config.yaml").expanduser()
 
 class Config(BaseModel):
     """Main configuration model that holds a list of all provider configs."""
-
     providers: List[ServiceUnion] # type: ignore
 
 
 def load_config() -> Config:
-    if not os.path.exists(CONFIG_PATH):
-        typer.echo(f"Config file not found at {CONFIG_PATH}. Please run 'docbinder setup' first.")
+    if not CONFIG_PATH.exists():
+        typer.echo(
+            f"Config file not found at {CONFIG_PATH}. Please run 'docbinder setup' first."
+        )
         raise typer.Exit(code=1)
+
     with open(CONFIG_PATH, "r") as f:
         config_data = yaml.safe_load(f)
+
     provider_registry = get_provider_registry()
     config_to_add = []
     for config in config_data.get("providers", []):
@@ -41,7 +42,8 @@ def load_config() -> Config:
 
 
 def save_config(config: Config):
-    os.makedirs(os.path.dirname(CONFIG_PATH), exist_ok=True)
+    CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+
     with open(CONFIG_PATH, "w") as f:
         yaml.dump(config.model_dump(), f, default_flow_style=False)
     typer.echo(f"Config saved to {CONFIG_PATH}")

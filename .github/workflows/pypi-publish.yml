@@ -1,0 +1,30 @@
+name: Publish to PyPI
+# This workflow publishes the package to PyPI when a new tag is created on the main branch.
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  pypi-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    environment: pypi
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set version in pyproject.toml from tag
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          sed -i.bak -E "s/^version = \".*\"/version = \"${VERSION}\"/" pyproject.toml
+          rm pyproject.toml.bak
+
+      - name: build release distributions
+        run: |
+          pip install hatchling
+          python -m hatchling build
+
+      - name: Publish release distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@v1.12.4

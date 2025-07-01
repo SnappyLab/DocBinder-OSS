@@ -1,17 +1,9 @@
 name: DocBinder OSS Library CI/CD
 
 on:
-  push:
-    branches:
-      - main
-      - dev
-    paths-ignore:
-      - "docs/**"
-      - "mkdocs.yml"
   pull_request:
     branches:
       - main
-      - dev
     paths-ignore:
       - "docs/**"
       - "mkdocs.yml"
@@ -48,27 +40,8 @@ jobs:
 
       - name: Lint code with uv
         run: |
-          uv tool run ruff check --fix
-          uv tool run ruff format
+          uv tool run ruff check
 
       - name: Run tox with uv
         run: |
           uv run tox -e ${{ matrix.tox-env }}
-  pypi-publish:
-    runs-on: ubuntu-latest
-    needs:
-      - test
-    if: github.ref == 'refs/heads/main'
-    permissions:
-      id-token: write
-    environment: pypi
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: build release distributions
-        run: |
-          pip install hatchling
-          python -m hatchling build
-
-      - name: Publish release distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.12.4
