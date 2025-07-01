@@ -6,7 +6,7 @@ import typer
 import yaml
 from pydantic import BaseModel, ValidationError
 
-from docbinder_oss.services import ServiceUnion, get_provider_registry
+from docbinder_oss.providers import ServiceUnion, get_provider_registry
 
 logger = logging.getLogger(__name__)
 
@@ -16,14 +16,12 @@ CONFIG_PATH = os.path.expanduser("~/.config/docbinder/config.yaml")
 class Config(BaseModel):
     """Main configuration model that holds a list of all provider configs."""
 
-    providers: List[ServiceUnion]
+    providers: List[ServiceUnion] # type: ignore
 
 
 def load_config() -> Config:
     if not os.path.exists(CONFIG_PATH):
-        typer.echo(
-            f"Config file not found at {CONFIG_PATH}. Please run 'docbinder setup' first."
-        )
+        typer.echo(f"Config file not found at {CONFIG_PATH}. Please run 'docbinder setup' first.")
         raise typer.Exit(code=1)
     with open(CONFIG_PATH, "r") as f:
         config_data = yaml.safe_load(f)
@@ -33,9 +31,7 @@ def load_config() -> Config:
         if config.get("type") not in provider_registry:
             typer.echo(f"Unknown provider type: {config['type']}")
             raise typer.Exit(code=1)
-        config_to_add.append(
-            provider_registry[config["type"]]["config_class"](**config)
-        )
+        config_to_add.append(provider_registry[config["type"]]["config_class"](**config))
     try:
         configss = Config(providers=config_to_add)
         return configss
