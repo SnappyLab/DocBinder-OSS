@@ -1,4 +1,4 @@
-name: DocBinder OSS Library CI/CD
+name: DocBinder OSS Library CI
 
 on:
   pull_request:
